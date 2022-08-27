@@ -17,7 +17,17 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
 
     [SerializeField] private GeneralSave general;
     #endregion
-	
+
+    #region User
+    public UserSave User
+    {
+        get => user;
+        set { user = value; }
+    }
+
+    [SerializeField] private UserSave user;
+    #endregion
+
     #region RemoteConfig
     public RemoteConfigSave RemoteConfig
     {
@@ -54,6 +64,8 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         SaveGame.Serializer = new SaveGameJsonSerializer();
         Load();
         FixData();
+
+        this.PostEvent(EventID.LoadSuccess);
     }
 
     private void FixData()
@@ -61,13 +73,14 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         remoteConfig.Fix();
         general.Fix();
         tutorial.Fix();
+        user.Fix();
     }
 
-    private void OnApplicationPause()
-    {
-        Debug.Log("Pause");
-        Save();
-    }
+    //private void OnApplicationPause(bool pause)
+    //{
+    //    Debug.Log("Pause: " + pause);
+    //    if (pause) Save();
+    //}
 
     private void OnApplicationQuit()
     {
@@ -80,6 +93,7 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         remoteConfig.Save();
         general.Save();
         tutorial.Save();
+        user.Save();
     }
 
     private void Load()
@@ -87,5 +101,6 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         general = SaveGame.Load("General", new GeneralSave());
         remoteConfig = SaveGame.Load("RemoteConfig", new RemoteConfigSave());
         tutorial = SaveGame.Load("Tutorial", new TutorialSave());
+        user = SaveGame.Load("User", new UserSave());
     }
 }

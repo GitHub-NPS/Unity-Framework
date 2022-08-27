@@ -61,20 +61,29 @@ namespace NPS
         }
 
         /// <summary>
+        /// Decimal to Price
+        /// </summary>
+        public static string PriceShow(decimal price)
+        {
+            string result = string.Format(price == Decimal.ToInt32(price) ? "{0:n0}" : "{0:n}", price);
+            return result;
+        }
+
+        /// <summary>
         /// Int to Score
         /// </summary>
-        public static string ScoreShow(float Score)
+        public static string ScoreShow(double Score)
         {
             string result;
             string[] ScoreNames = new string[] { "", "k", "M", "B", "T", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az", "ba", "bb", "bc", "bd", "be", "bf", "bg", "bh", "bi", "bj", "bk", "bl", "bm", "bn", "bo", "bp", "bq", "br", "bs", "bt", "bu", "bv", "bw", "bx", "by", "bz", };
             int i;
 
             for (i = 0; i < ScoreNames.Length; i++)
-                if (Score < 900)
+                if (Score < 1000)
                     break;
-                else Score = Mathf.Floor(Score / 100f) / 10f;
+                else Score = Math.Floor(Score / 100d) / 10d;
 
-            if (Score == Mathf.Floor(Score))
+            if (Score == Math.Floor(Score))
                 result = Score.ToString() + ScoreNames[i];
             else result = Score.ToString("F1") + ScoreNames[i];
             return result;
@@ -86,13 +95,10 @@ namespace NPS
         public static string TimeShow(TimeSpan time)
         {
             string str = "";
-            if (time.Days > 0)
-            {
-                str += time.Days + "Day";
-            }
-            str += time.Hours + ":";
-            str += time.Minutes + ":";
-            str += time.Seconds;
+            if (time.Days > 0) str += time.Days + "d ";
+            if (time.Hours > 0 || (time.Days > 0)) str += time.Hours + "h ";
+            str += time.Minutes + "m ";
+            if (time.Days == 0) str += time.Seconds + "s";
 
             return str;
         }
@@ -103,6 +109,12 @@ namespace NPS
         public static float SqrMagnitude(Vector3 from, Vector3 to)
         {
             Vector3 dis = to - from;
+            return SqrMagnitude(dis);
+        }
+
+        public static float SqrMagnitude(Vector3 vector)
+        {
+            Vector3 dis = new Vector3(vector.x, vector.y);
             dis.x = Mathf.Abs(dis.x);
             dis.y = Mathf.Abs(dis.y);
 
@@ -147,6 +159,36 @@ namespace NPS
                 }
             }
             return 0;
+        }
+
+        /// <summary>
+        /// Chuẩn hóa vector max 1
+        /// </summary>
+        /// <param name="vector"></param>
+        public static Vector3 MaxNormalized(Vector3 vector)
+        {
+            float x = Mathf.Abs(vector.x);
+            float y = Mathf.Abs(vector.y);
+
+            float rs;
+            if (x > y)
+            {
+                if (x <= 0.1) x = 0.1f;
+
+                rs = 1 / x;
+                x = 1;
+                y *= rs;
+            }
+            else
+            {
+                if (y <= 0.1) y = 0.1f;
+
+                rs = 1 / y;
+                y = 1;
+                x *= rs;
+            }
+
+            return new Vector3((vector.x > 0 ? 1 : -1) * x, (vector.y > 0 ? 1 : -1) * y);
         }
     }
 }

@@ -6,30 +6,62 @@ using UnityEngine;
 
 public class EffExplode : MonoBehaviour
 {
-    private IOverlap overlapCircle;
+    private IOverlap overlap;
+    private PlaySound sound;
 
     private void Awake()
     {
-        overlapCircle = GetComponent<IOverlap>();
+        overlap = GetComponent<IOverlap>();
+        sound = GetComponent<PlaySound>();
+    }
+
+    public void SetSource(string source)
+    {
+        overlap.SetSource(source);
+    }
+
+    public void SetSize(float size)
+    {
+        overlap.SetSize(size);
     }
 
     public void SetDmg(float dmg)
     {
-        overlapCircle.SetDamage(dmg);
+        overlap.SetDamage(dmg);
     }
 
     public void SetForce(float force)
     {
-        overlapCircle.SetExplosionForce(force);
+        overlap.SetExplosionForce(force);
     }
 
     public void SetIce(float time)
     {
-        overlapCircle.SetIce(time);
+        overlap.SetIce(time);
+    }
+
+    public void SetStun(float time)
+    {
+        overlap.SetStun(time);
+    }
+
+    public void SetBurn(bool active)
+    {
+        overlap.SetBurn(active);
+    }
+
+    public void SetSlow(float time, float perSlow)
+    {
+        overlap.SetSlow(time, perSlow);
     }
 
     public void Ray()
     {
-        overlapCircle.Ray();
+        overlap.Ray();
+    }
+
+    public void Sound()
+    {
+        sound?.Play();
     }
 }

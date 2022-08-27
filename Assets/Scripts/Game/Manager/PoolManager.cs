@@ -14,7 +14,7 @@ public class PoolManager : MonoBehaviour
 
     private void Start()
     {
-        
+
     }
 
     public T Spawn<T>(T prefab) where T : Component

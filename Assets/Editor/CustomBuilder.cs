@@ -96,7 +96,7 @@ public static class CustomBuilder
     {
         PlayerSettings.Android.useCustomKeystore = false;
 
-        AddScriptingDefineSymbol("DEVELOPMENT");
+        //AddScriptingDefineSymbol("DEVELOPMENT");
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
         EditorUserBuildSettings.symlinkLibraries = false;
@@ -130,7 +130,7 @@ public static class CustomBuilder
 
     public static void BuildXcodeProjectDevelopment()
     {
-        AddScriptingDefineSymbol("DEVELOPMENT");
+        //AddScriptingDefineSymbol("DEVELOPMENT");
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
         EditorUserBuildSettings.symlinkLibraries = false;

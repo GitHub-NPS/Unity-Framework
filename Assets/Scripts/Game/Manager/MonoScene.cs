@@ -15,13 +15,13 @@ public class MonoScene : MonoSingleton<MonoScene>
         SceneManager.LoadScene(name);
     }
 
-    public void LoadAsync(string name, ThreadPriority priority = ThreadPriority.Normal)
+    public void LoadAsync(string name)
     {
         if (name == SceneManager.GetActiveScene().name) return;
         if (!active) return;
 
         active = false;
-        Application.backgroundLoadingPriority = priority;
+        Application.backgroundLoadingPriority = ThreadPriority.Normal;
 
         StartCoroutine(LoadSceneAsync());
 

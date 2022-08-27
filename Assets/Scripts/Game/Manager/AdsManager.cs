@@ -23,7 +23,7 @@ public class AdsManager : MonoSingleton<AdsManager>
     private bool m_IsShowBanner = false;
     private bool m_IsInit = false;
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
     private string maxSdkKey = "Z0Tb-K4SHT-_MDs_V9Tbg_LoJ5UB2_KEQD9HpRMOwm3HdkoEulhgL-tdHmTTsI6nsgNZzxPczhk5R-ZzqRNnVt";
 
     private string adUnitId = "3b6bb70916767fab";
@@ -56,7 +56,7 @@ public class AdsManager : MonoSingleton<AdsManager>
         IronSource.Agent.init(AppKey);
 #endif
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
         MaxSdkCallbacks.OnSdkInitializedEvent += sdkConfiguration =>
         {
             InitializeInterstitialAds();
@@ -149,7 +149,7 @@ public class AdsManager : MonoSingleton<AdsManager>
 #endif
     }
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
     private void InitializeInterstitialAds()
     {
         MaxSdkCallbacks.Interstitial.OnAdLoadedEvent += OnInterstitialLoadedEvent;
@@ -310,7 +310,7 @@ public class AdsManager : MonoSingleton<AdsManager>
         }
 #endif
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
         if (MaxSdk.IsInterstitialReady(adUnitId))
         {
             MaxSdk.ShowInterstitial(adUnitId);
@@ -342,9 +342,11 @@ public class AdsManager : MonoSingleton<AdsManager>
             }
 
             Debug.Log("Show Rewarded Ad success");
+
+            AppManager.Firebase.OnAdsReward();
 #endif
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
             if (MaxSdk.IsRewardedAdReady(adRewardUnitId))
             {
                 MaxSdk.ShowRewardedAd(adRewardUnitId, m_PlacementId);
@@ -353,7 +355,7 @@ public class AdsManager : MonoSingleton<AdsManager>
         }
         else
         {
-#if UNITY_EDITOR || !UNITY_IRONSOURCE || !UNITY_MAX_Applovin
+#if UNITY_EDITOR || DEVELOPMENT
             StartCoroutine(InvokeEventAd(true));
 #else
             StartCoroutine(InvokeEventAd(false));
@@ -366,7 +368,7 @@ public class AdsManager : MonoSingleton<AdsManager>
 #if UNITY_IRONSOURCE
         Debug.Log("Rewarded Ad Ready");
         return IronSource.Agent.isRewardedVideoAvailable();
-#elif UNITY_MAX_Applovin
+#elif UNITY_APPLOVIN_SDK
         return true;
 #else
         return false;
@@ -389,7 +391,7 @@ public class AdsManager : MonoSingleton<AdsManager>
         IronSource.Agent.displayBanner();
 #endif
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
         MaxSdk.ShowBanner(bannerAdUnitId);
 #endif
     }
@@ -402,7 +404,7 @@ public class AdsManager : MonoSingleton<AdsManager>
         IronSource.Agent.hideBanner();
 #endif
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
         MaxSdk.HideBanner(bannerAdUnitId);
 #endif
     }
@@ -415,7 +417,7 @@ public class AdsManager : MonoSingleton<AdsManager>
         IronSource.Agent.destroyBanner();
 #endif
 
-#if UNITY_MAX_Applovin
+#if UNITY_APPLOVIN_SDK
         MaxSdk.DestroyBanner(bannerAdUnitId);
 #endif
     }

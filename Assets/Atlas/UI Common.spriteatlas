@@ -56,7 +56,6 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 88bd42fc30fb4044da565339580f2f64, type: 3}
-    totalSpriteSurfaceArea: 276500
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
@@ -67,6 +66,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: c688e327f3be13143b37d5b977b828c9, type: 3}
   - {fileID: 21300000, guid: 365df8d8ceddce44f954690f4180370e, type: 3}
   - {fileID: 21300000, guid: 4aad1509132867b47ac016b470daa86b, type: 3}
+  - {fileID: 21300000, guid: ba43494af2f6d17419e9645b3668cdcc, type: 3}
   - {fileID: 21300000, guid: 2520dacdb25cbcf4f8e6e18a3e7791b1, type: 3}
   - {fileID: 21300000, guid: 6884314f0585b0c4facccdf5421102b3, type: 3}
   - {fileID: 21300000, guid: 465ea97fff2d348468e95e96962e6493, type: 3}
@@ -76,6 +76,7 @@ SpriteAtlas:
   - button_green
   - button_xanhluc
   - button_do
+  - circle
   - button_pause
   - chat_box
   - popup_chung

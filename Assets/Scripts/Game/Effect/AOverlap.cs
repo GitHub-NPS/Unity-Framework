@@ -7,7 +7,6 @@ public abstract class AOverlap<T> : MonoBehaviour, IOverlap
 {
     [SerializeField] private float delay = 0.2f;
 
-    [SerializeField] private bool inMain = false;
     [SerializeField] protected LayerBit[] layers;
     [SerializeField] private List<ObjectTag> tags;
 
@@ -20,42 +19,91 @@ public abstract class AOverlap<T> : MonoBehaviour, IOverlap
     [SerializeField] private bool isFreeze = false;
     [SerializeField] private IceData ice;
 
+    [SerializeField] private bool isStun = false;
+    [SerializeField] private StunData stun;
+
+    [SerializeField] private bool isBurn = false;
+    [SerializeField] private BurnData burn;
+
+    [SerializeField] private bool isSlow = false;
+    [SerializeField] private SlowData slow;
+
+    private string source;
+
     private CoroutineHandle handle;
+
+    public void SetSource(string source)
+    {
+        this.source = source;
+
+        this.damage.Source = source;
+        this.ice.Source = source;
+        this.explosionForce.Source = source;
+    }
+
+    public virtual void SetSize(float size)
+    {
+        this.transform.localScale = new Vector3(size, size, 1);
+    }
 
     public void SetDamage(DamageData damage)
     {
-        isDamage = true;
+        isDamage = damage.Value > 0;
         this.damage = damage;
     }
 
     public void SetDamage(float dmg)
     {
-        isDamage = true;
+        isDamage = dmg > 0;
         damage.Value = dmg;
     }
 
     public void SetExplosionForce(ExplosionForceData explosionForce)
     {
-        isExplosionForce = true;
+        isExplosionForce = explosionForce.Value > 0;
         this.explosionForce = explosionForce;
     }
 
     public void SetExplosionForce(float force)
     {
-        isExplosionForce = true;
+        isExplosionForce = force > 0;
         explosionForce.Value = force;
     }
 
     public void SetIce(IceData ice)
     {
-        isFreeze = true;
+        isFreeze = ice.Value > 0;
         this.ice = ice;
     }
 
     public void SetIce(float time)
     {
-        isFreeze = true;
+        isFreeze = time > 0;
         ice.Value = time;
+    }
+
+    public void SetStun(StunData stun)
+    {
+        isStun = stun.Value > 0;
+        this.stun = stun;
+    }
+
+    public void SetStun(float time)
+    {
+        isStun = time > 0;
+        stun.Value = time;
+    }
+
+    public void SetBurn(bool burn)
+    {
+        isBurn = burn;
+    }
+
+    public void SetSlow(float time, float perSlow)
+    {
+        isSlow = time > 0;
+        slow.Duration = time;
+        slow.Percent = perSlow;
     }
 
     public void Ray()
@@ -75,7 +123,7 @@ public abstract class AOverlap<T> : MonoBehaviour, IOverlap
         yield return Timing.WaitForSeconds(delay);
 
         var cl = GetCollider();
-        var objs = cl.GetObject<T>(tags, inMain);
+        var objs = cl.GetObject<T>(tags);
 
         foreach (var obj in objs)
         {
@@ -98,6 +146,24 @@ public abstract class AOverlap<T> : MonoBehaviour, IOverlap
                 IFreeze iFz = obj.GetGameObject().GetComponent<IFreeze>();
                 iFz?.Freeze(ice);
             }
+
+            if (isStun)
+            {
+                IStun iSt = obj.GetGameObject().GetComponent<IStun>();
+                iSt?.Stun(stun);
+            }
+
+            if (isBurn)
+            {
+                IBurn iBr = obj.GetGameObject().GetComponent<IBurn>();
+                iBr?.Burn(burn);
+            }
+
+            if (isSlow)
+            {
+                ISlow iSl = obj.GetGameObject().GetComponent<ISlow>();
+                iSl?.AddSlow(slow.Clone());
+            }
         }
-    }    
+    }
 }

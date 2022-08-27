@@ -1,11 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Threading.Tasks;
 using System;
 using NPS;
-using Core;
-using System.Text;
 
 #if UNITY_GG_SIGNIN
 using Google;
@@ -17,12 +14,13 @@ using AppleAuth.Native;
 using AppleAuth.Enums;
 using AppleAuth.Interfaces;
 using AppleAuth.Extensions;
+using System.Text;
 #endif
 
 public class LoginManager : MonoSingleton<LoginManager>
 {
 #if UNITY_GG_SIGNIN
-    private string webClientId = "1099439886463-n7j3pi932abho83827ol3ndjr59ctv47.apps.googleusercontent.com";
+    private string webClientId = "529076380418-2daa4tmksh5t8d4lf777ujlplerhil2l.apps.googleusercontent.com";
 
     private GoogleSignInConfiguration configuration;
 #endif
@@ -49,11 +47,13 @@ public class LoginManager : MonoSingleton<LoginManager>
     private void InitGoogleSignIn()
     {
 #if UNITY_GG_SIGNIN
-        configuration = new GoogleSignInConfiguration
+        GoogleSignIn.Configuration = new GoogleSignInConfiguration
         {
             WebClientId = webClientId,
             RequestIdToken = true
         };
+
+        
 #endif
     }
 
@@ -80,9 +80,9 @@ public class LoginManager : MonoSingleton<LoginManager>
         Debug.Log("Login");
 
 #if UNITY_GG_SIGNIN
-        GoogleSignIn.Configuration = configuration;
-        GoogleSignIn.Configuration.UseGameSignIn = false;
-        GoogleSignIn.Configuration.RequestIdToken = true;        
+        //GoogleSignIn.Configuration = configuration;
+        //GoogleSignIn.Configuration.UseGameSignIn = false;
+        //GoogleSignIn.Configuration.RequestIdToken = true;        
 
         GoogleSignIn.DefaultInstance.SignIn().ContinueWith(
           OnAuthenticationFinished);
@@ -148,7 +148,9 @@ public class LoginManager : MonoSingleton<LoginManager>
 #if UNITY_EDITOR || DEVELOPMENT
         StartCoroutine(LoginSuccess(new LoginData()
         {
-            DisplayName = "You"
+            UserId = "User " + SystemInfo.deviceUniqueIdentifier,
+            DisplayName = "User " + "-" + SystemInfo.deviceUniqueIdentifier.Substring(0, 6),
+            ImageUrl = ""
         }));
 
         return;
@@ -156,7 +158,7 @@ public class LoginManager : MonoSingleton<LoginManager>
     }
 
 #if UNITY_GG_SIGNIN
-    private void OnAuthenticationFinished(Task<GoogleSignInUser> task)
+    private void OnAuthenticationFinished(System.Threading.Tasks.Task<GoogleSignInUser> task)
     {
         if (task.IsFaulted)
         {
@@ -168,20 +170,24 @@ public class LoginManager : MonoSingleton<LoginManager>
                     GoogleSignIn.SignInException error =
                             (GoogleSignIn.SignInException)enumerator.Current;
                     Debug.LogError("Got Error: " + error.Status + " " + error.Message);
+                    OnLogin?.Invoke(null);
                 }
                 else
                 {
                     Debug.LogError("Got Unexpected Exception?!?" + task.Exception);
+                    OnLogin?.Invoke(null);
                 }
             }
         }
         else if (task.IsCanceled)
         {
             Debug.LogError("Canceled");
+            OnLogin?.Invoke(null);
         }
         else
         {
             Debug.Log("Welcome: " + task.Result.DisplayName + "!");
+            Debug.Log("Welcome: " + task.Result.ImageUrl.ToString() + "!");
 
             StartCoroutine(LoginSuccess(new LoginData()
             {
@@ -189,7 +195,8 @@ public class LoginManager : MonoSingleton<LoginManager>
                 IdToken = task.Result.IdToken,
                 Email = task.Result.Email,
                 DisplayName = task.Result.DisplayName,
-                AuthCode = task.Result.AuthCode
+                AuthCode = task.Result.AuthCode,
+                ImageUrl = task.Result.ImageUrl.ToString()
             }));
         }
     }
@@ -199,6 +206,10 @@ public class LoginManager : MonoSingleton<LoginManager>
     {
         yield return new WaitForEndOfFrame();
         OnLogin?.Invoke(data);
+
+#if UNITY_APPSFLYER
+        AppManager.AppsFlyer.LoginSuccessTracking();
+#endif
     }
 
     public void Logout()

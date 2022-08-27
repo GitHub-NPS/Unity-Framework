@@ -1,4 +1,5 @@
 using MEC;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,7 @@ public class AutoDestroyObject : MonoBehaviour
     [SerializeField] private float exit = 10f;
     
     private CoroutineHandle handle;
+    private Action callBackBeforeDestroy;
 
     private void OnEnable()
     {
@@ -20,6 +22,11 @@ public class AutoDestroyObject : MonoBehaviour
     public void Set(float exit)
     {
         this.exit = exit;
+    }
+
+    public void SetCallBack(Action action)
+    {
+        this.callBackBeforeDestroy = action;
     }
 
     public void AutoDestroy()
@@ -36,6 +43,8 @@ public class AutoDestroyObject : MonoBehaviour
     private IEnumerator<float> _AutoDestroy()
     {
         yield return Timing.WaitForSeconds(exit);
+        callBackBeforeDestroy?.Invoke();
+
         if (pool) PoolManager.S.Despawn(this.gameObject);
         else Destroy(this.gameObject);
     }

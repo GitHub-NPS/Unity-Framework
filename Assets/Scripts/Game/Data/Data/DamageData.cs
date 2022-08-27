@@ -5,4 +5,6 @@ public class DamageData
     public float Value;
     public bool IsCrit;
     public bool IsDirect = true;
+    public bool IsFlash = true;
+    public string Source = null;
 }

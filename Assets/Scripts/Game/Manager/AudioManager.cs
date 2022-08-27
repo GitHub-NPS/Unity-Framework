@@ -4,8 +4,8 @@ public class AudioManager : MonoBehaviour
 {
     public static AudioManager S;
 
-    [SerializeField] private AudioSource MusicSource;
-    [SerializeField] private AudioSource SoundSource;
+    public AudioSource MusicSource;
+    public AudioSource SoundSource;
 
     private GeneralSave general;
 
@@ -28,6 +28,8 @@ public class AudioManager : MonoBehaviour
         MusicSource.volume = general.Music;
 
         MuteMusic(general.Music == 0);
+
+        general.Save();
     }
 
     public void SetSound(float value)
@@ -36,6 +38,8 @@ public class AudioManager : MonoBehaviour
         SoundSource.volume = general.Sound;
 
         MuteSound(general.Sound == 0);
+
+        general.Save();
     }
 
     private void UnMuteMusic()

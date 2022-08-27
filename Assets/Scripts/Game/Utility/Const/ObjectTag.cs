@@ -1,4 +1,4 @@
 public enum ObjectTag
 {
-    None,
+    None = 0,
 }

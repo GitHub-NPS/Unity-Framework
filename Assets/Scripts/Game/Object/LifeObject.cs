@@ -5,7 +5,6 @@ using UnityEngine.Events;
 
 public class LifeObject : MonoBehaviour
 {
-    [SerializeField] protected GameConfig gameConfig;
     [SerializeField] private UnityEvent OnHit;
     [SerializeField] private UnityEvent OnDie;
 

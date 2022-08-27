@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class DataliveManager : MonoSingleton<DataliveManager>
 {
-    //public AbilityLive Ability;
+    public GameConfig GameConfig;
 
     private void Start()
     {
@@ -17,13 +17,13 @@ public class DataliveManager : MonoSingleton<DataliveManager>
         DataManager.Live = this;
         if (parent) transform.SetParent(parent);
 
-        //Ability = Resources.Load<AbilityLive>("Live/AbilityLive");
+        GameConfig = Resources.Load<GameConfig>("Live/GameConfig");
 
         ClearAll();
     }
 
     public void ClearAll()
     {
-        //Ability.Value.Clear();
+
     }
 }

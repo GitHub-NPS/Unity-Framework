@@ -11,7 +11,7 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 {
     private string devKey = "HWAAfxs6ec2wwZfsRpjipJ";
 
-    private string androidPublicKey = "";
+    private string androidPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlZYAqA286v62RdPKgThx14xtqk49CIviIaX1DWaR5DI8ov0gFyRiLp6OtTJOF62TDbul//b5zIFMHPwC5KBXTRjwcLfsVTAfGFP0+PPZJEe4luNU9FnT3rfgzKEkspfq772gIFFlqZ4fVLEz5KwF1d1qHhBy1VlevP64Uzm1BlndpBdQ0qUOlCDXdrx+KQuqyDpMCSOqceC/76Ju9N+e1QWZ1C/TYxjVILD3ovJ7eDN5cl1pffQomBAAMPYe0zxEuNTSu1znaKm3aLawTO3gZqVuRDP483imhtZV1Dz6nPpAw/PfuJfM1P6KPxyjvaD3ZlkieQvCUg6mi5r2qNc//QIDAQAB";
     private string iOSAppId = "1600189085";
     private bool m_IsInitialized = false;
 
@@ -178,6 +178,25 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 #if UNITY_IOS
         AppsFlyeriOS.validateAndSendInAppPurchase(prodId, price, currency, transactionId, null, this);
 #endif
+#endif
+    }
+
+    public void CompleteTutorialTracking(bool af_success, int af_tutorial_id, string af_content)
+    {
+#if UNITY_APPSFLYER
+        var eventParams = new Dictionary<string, string>();
+        eventParams.Add("af_success", af_success ? "true" : "false");
+        eventParams.Add("af_tutorial_id", af_tutorial_id.ToString());
+        eventParams.Add("af_content", af_content);
+
+        AppsFlyer.sendEvent("af_tutorial_completion", eventParams);
+#endif
+    }
+
+    public void LoginSuccessTracking()
+    {
+#if UNITY_APPSFLYER
+        AppsFlyer.sendEvent("af_login", null);
 #endif
     }
 }

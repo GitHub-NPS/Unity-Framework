@@ -74,6 +74,8 @@ public class ResourceManager : MonoBehaviour
 
             if (!dicSP.ContainsKey(path))
             {
+                if (check && !dicAtlas.ContainsKey(atlas))
+                    Debug.LogError("Resource Null: " + path);
                 Sprite t = dicAtlas[atlas].GetSprite(name);
 
                 if (t) dicSP.Add(path, t);
@@ -124,4 +126,6 @@ public class ResourceManager : MonoBehaviour
             return Resources.Load<T>(path);
         }
     }
+
+    // Custom
 }

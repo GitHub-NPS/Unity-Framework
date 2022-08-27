@@ -13,10 +13,19 @@ using Firebase.RemoteConfig;
 
 public class FirebaseManager : MonoSingleton<FirebaseManager>
 {
-    private bool m_IsInitialized = false;
+    private bool IsInit = false;
+#if User_Tier_Definition
+    private bool IsAnalytics => IsInit && UserTierDefinition.Runtime.UserTierDefinition.Instance.CountryCode != "CN";
+#else
+    private bool IsAnalytics => IsInit;
+#endif
 
     private void Start()
     {
+#if DEVELOPMENT
+        this.PostEvent(EventID.RemoteConfigComplete);
+#endif
+
 #if UNITY_FIREBASE
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
@@ -25,6 +34,7 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
                 Initialize();
             } else {
                 Debug.Log(System.String.Format("Could not resolve all Firebase dependencies: {0}", dependencyStatus));
+                this.PostEvent(EventID.RemoteConfigComplete);
             }
         });
 #endif
@@ -50,7 +60,7 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
 
         FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(defaults).ContinueWithOnMainThread(task => {
             FetchDataAsync();
-            m_IsInitialized = true;
+            IsInit = true;
         });
 #endif
     }
@@ -83,6 +93,8 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
                 {
                     configs[change.Key] = change.Value;
                 }
+               
+                this.PostEvent(EventID.RemoteConfigComplete);
             });
         }
     }
@@ -91,7 +103,7 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
     public void AdImpression(string ad_platform, string ad_source, string ad_unit_name, string ad_format, string ad_revenue)
     {
 #if UNITY_FIREBASE
-        if (m_IsInitialized) {
+        if (IsAnalytics) {
             Firebase.Analytics.Parameter[] arrParams = {
                 new Firebase.Analytics.Parameter("ad_platform", ad_platform),
                 new Firebase.Analytics.Parameter("ad_source", ad_source),
@@ -115,7 +127,7 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
     public void AdImpression(string ad_platform, string ad_unit_name)
     {
 #if UNITY_FIREBASE
-        if (m_IsInitialized)
+        if (IsAnalytics)
         {
             Firebase.Analytics.Parameter[] arrParams = {
                 new Firebase.Analytics.Parameter("ad_platform", ad_platform),

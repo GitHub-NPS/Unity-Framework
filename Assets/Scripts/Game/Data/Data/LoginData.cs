@@ -5,4 +5,5 @@ public class LoginData
     public string Email;
     public string DisplayName;
     public string AuthCode;
+    public string ImageUrl = "";
 }

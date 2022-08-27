@@ -13,10 +13,11 @@ public class AppManager : MonoSingleton<AppManager>
     public static IAPManager Iap;
     public static LoginManager Login;
     public static FacebookManager Facebook;
+    public static ApiManager Api;
 
     public void Init()
     {
-        FacebookManager.S.Init(transform);
+        TrackingEvent.StartInit();
         AppsFlyerManager.S.Init(transform);
         FirebaseManager.S.Init(transform);
         AdsManager.S.Init(transform);
@@ -24,5 +25,7 @@ public class AppManager : MonoSingleton<AppManager>
         NotificationManager.S.Init(transform);
         IAPManager.S.Init(transform);
         LoginManager.S.Init(transform);
+        FacebookManager.S.Init(transform);
+        ApiManager.S.Init(transform);
     }
 }

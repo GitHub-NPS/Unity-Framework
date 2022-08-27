@@ -5,6 +5,7 @@ public class SlowData
     public float Percent;
     public bool IsSwitch = false;
     public float Duration = -1f;
+    public bool IsColor = false;
 
     public float Value { get; private set; } = 0;
 
@@ -21,6 +22,7 @@ public class SlowData
         clone.IsSwitch = IsSwitch;
         clone.Duration = Duration;
         clone.Value = Value;
+        clone.IsColor = IsColor;
 
         return clone;
     }

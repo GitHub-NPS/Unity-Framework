@@ -6,6 +6,7 @@ public class IceData: ICloneable
 {
     public ObjectTag Agent;
     public float Value;
+    public string Source = null;
 
     public object Clone()
     {

@@ -7,9 +7,12 @@ namespace NPS
     public enum EventID
     {
         None = 0,
+        LoadSuccess,
         ChangeAds,
         Tap2ContinueTutorial,
         CompleteTutorial,
-        NextStepTutorial
+        NextStepTutorial,
+        RemoteConfigComplete,
+        ChangeCurrency
     }
 }

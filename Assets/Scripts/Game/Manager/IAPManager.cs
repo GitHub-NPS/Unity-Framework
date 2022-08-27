@@ -6,6 +6,8 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using NPS;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 #if UNITY_IAP
 using UnityEngine.Purchasing;
@@ -178,7 +180,13 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
             var product = m_StoreController.products.WithID(productId);
             if (product != null && product.availableToPurchase)
             {
-                return product.metadata.isoCurrencyCode;
+                //return product.metadata.isoCurrencyCode;
+
+                string price = product.metadata.localizedPriceString;
+                string regex = @"[^0-9\.,]";
+                var group = Regex.Match(price, regex).Groups;
+                if (group.Count > 0) return group[0].Value;
+                else return "$";
             }
             else
             {
@@ -232,7 +240,24 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
                     AppManager.AppsFlyer.AndroidRevenueTracking(signature, purchaseData, decimal.Multiply(price, 0.63m).ToString(), currency);
 #endif
 
+#if APP_METRICA
+                    YandexAppMetricaReceipt yaReceipt = new YandexAppMetricaReceipt();
+                    if (receipt != null)
+                    {
+                        yaReceipt.Data = purchaseData;
+#if UNITY_ANDROID
+                        yaReceipt.Signature = signature;
+                        
+#elif UNITY_IPHONE
+                        yaReceipt.TransactionID = transactionId;
+#endif
+                    }
+                    AppMetrica.AndroidRevenueTracking(price, currency, yaReceipt);
+#endif
+
                     OnPurchaseComplete?.Invoke(PurchaseState.Success, m_Products[i]);
+
+                    AppManager.Firebase.OnIAPComplete(m_Products[i].Id);
                 }
                 else
                 {
@@ -293,21 +318,25 @@ public class IAPManager : MonoSingleton<IAPManager>
         products = settings.Products;
     }
 
-    public void BuyProduct(string productId, UnityAction<PurchaseState, IapProduct> onPurchaseComplete) {
+    public void BuyProduct(string productId, UnityAction<PurchaseState, IapProduct> onPurchaseComplete)
+    {
         var product = products.First(cond => string.Equals(cond.Id, productId));
         onPurchaseComplete?.Invoke(PurchaseState.Success, product);
     }
 
-    public decimal GetPrice(string productId) {
-        if (products != null) {
-            return decimal.Parse(products.First(p => string.Equals(p.Id, productId)).Price.Replace("$", string.Empty));
+    public decimal GetPrice(string productId)
+    {
+        if (products != null)
+        {
+            return decimal.Parse(products.First(p => string.Equals(p.Id, productId)).Price.Replace("$", string.Empty), CultureInfo.InvariantCulture.NumberFormat);
         }
 
         Debug.LogError("No products available");
         return 0;
     }
 
-    public string GetIsoCurrencyCode(string productId) {
+    public string GetIsoCurrencyCode(string productId)
+    {
         return "$";
     }
 }

@@ -6,13 +6,13 @@ using NPS;
 using UnityEngine.iOS;
 #endif
 
-#if UNITY_GG_REVIEW
+#if UNITY_REVIEW
 using Google.Play.Review;
 #endif
 
 public class RateManager : MonoSingleton<RateManager>
 {
-#if UNITY_ANDROID && UNITY_GG_REVIEW
+#if UNITY_ANDROID && UNITY_REVIEW
     private ReviewManager m_ReviewManager;
 #endif
 
@@ -27,12 +27,12 @@ public class RateManager : MonoSingleton<RateManager>
 
     private void Start()
     {
-#if UNITY_ANDROID && UNITY_GG_REVIEW
+#if UNITY_ANDROID && UNITY_REVIEW
         m_ReviewManager = new ReviewManager();
 #endif
     }
 
-#if UNITY_ANDROID && UNITY_GG_REVIEW
+#if UNITY_ANDROID && UNITY_REVIEW
     private IEnumerator LaunchInAppReview()
     {
         var requestFlowOperation = m_ReviewManager.RequestReviewFlow();
@@ -59,7 +59,7 @@ public class RateManager : MonoSingleton<RateManager>
 #if UNITY_EDITOR
         Debug.Log("Editor Not Support!");
 #endif
-#if UNITY_ANDROID && UNITY_GG_REVIEW
+#if UNITY_ANDROID && UNITY_REVIEW
         StartCoroutine(LaunchInAppReview());
 #endif
 #if UNITY_IOS
