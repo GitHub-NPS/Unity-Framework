@@ -10,9 +10,8 @@ public class AutoDestroyObject : MonoBehaviour
     [SerializeField] private bool enable = false;
     [SerializeField] private bool pool = false;
     [SerializeField] private float exit = 10f;
-    
+
     private CoroutineHandle handle;
-    private Action callBackBeforeDestroy;
 
     private void OnEnable()
     {
@@ -22,11 +21,6 @@ public class AutoDestroyObject : MonoBehaviour
     public void Set(float exit)
     {
         this.exit = exit;
-    }
-
-    public void SetCallBack(Action action)
-    {
-        this.callBackBeforeDestroy = action;
     }
 
     public void AutoDestroy()
@@ -40,12 +34,28 @@ public class AutoDestroyObject : MonoBehaviour
         if (handle.IsValid) Timing.KillCoroutines(handle);
     }
 
+    public void ForceDestroy()
+    {
+        if (handle.IsValid)
+        {
+            Timing.KillCoroutines(handle);
+
+            iDestroy();
+        }
+    }
+
     private IEnumerator<float> _AutoDestroy()
     {
         yield return Timing.WaitForSeconds(exit);
-        callBackBeforeDestroy?.Invoke();
 
+        iDestroy();
+    }
+
+    private void iDestroy()
+    {
         if (pool) PoolManager.S.Despawn(this.gameObject);
         else Destroy(this.gameObject);
+
+        handle = default;
     }
 }

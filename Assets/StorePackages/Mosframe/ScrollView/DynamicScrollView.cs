@@ -12,6 +12,7 @@
     using UnityEngine.UI;
     using UnityEngine.EventSystems;
     using System.Collections;
+    using System;
 
     /// <summary>
     /// Dynamic Scroll View
@@ -106,6 +107,7 @@
             // resize content
 
 			this.resizeContent();
+            seedDataComplete?.Invoke();
         }
 
 
@@ -189,11 +191,18 @@
 
         private void resizeContent () {
 
-            var size = this.contentRect.getSize();
-            if( this.direction == Direction.Vertical ) size.y = this.itemSize * this.totalItemCount;
-            else                                       size.x = this.itemSize * this.totalItemCount;
-            this.contentRect.setSize( size );
+            this.contentRect.setSize( getSizeContent() );
         }
+
+        protected virtual Vector2 getSizeContent()
+        {
+            var size = this.contentRect.getSize();
+            if (this.direction == Direction.Vertical) size.y = this.itemSize * this.totalItemCount;
+            else size.x = this.itemSize * this.totalItemCount;
+
+            return size;
+        }
+
 	    private void updateItem ( int index, GameObject itemObj ) {
 
 		    if( index < 0 || index >= this.totalItemCount ) {
@@ -209,7 +218,27 @@
 		    }
 	    }
 
+        public bool isInt = false;
+        private Action seedDataComplete = null;
 
+        public void init(int totalItemCount, Action seedDataComplete = null)
+        {
+            isInt = true;
+
+            this.totalItemCount = totalItemCount;
+            this.seedDataComplete = seedDataComplete;
+        }
+
+        public IDynamicScrollViewItem getItemIndex(int itemIndex)
+        {
+            foreach (var itemObj in this.containers)
+            {
+                var item = itemObj.GetComponent<IDynamicScrollViewItem>();
+                if (item != null && item.getIndex() == itemIndex) return item;
+            }
+
+            return null;
+        }
 
         [ContextMenu("Initialize")]
         public virtual void init () {

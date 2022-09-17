@@ -13,6 +13,8 @@ namespace Mosframe {
 
     public class DynamicScrollViewItemExample : UIBehaviour, IDynamicScrollViewItem 
     {
+        private int index = -1;
+
 	    private readonly Color[] colors = new Color[] {
 		    Color.cyan,
 		    Color.green,
@@ -20,6 +22,11 @@ namespace Mosframe {
 
 	    public Text  title;
 	    public Image background;
+
+        public int getIndex()
+        {
+            return index;
+        }
 
         public void onUpdateItem( int index ) {
 

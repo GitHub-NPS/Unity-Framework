@@ -34,5 +34,12 @@
 
             base.Start();
         }
+
+        [SerializeField] private float Bottom = 0;
+
+        protected override Vector2 getSizeContent()
+        {
+            return base.getSizeContent() + new Vector2(0, Bottom);
+        }
     }
 }

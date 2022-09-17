@@ -90,72 +90,8 @@ public class TutorialManager : MonoBehaviour
                     switch (save.CurStep)
                     {
                         case 1:
-                            HideHand();
-                            HideBoxChat();
-                            IncreaseStep();
                             break;
                         case 2:
-                            HideHand();
-                            HideBoxChat();
-                            Complete(tut);
-                            break;
-                    }
-                    break;
-                case 2:
-                    switch (save.CurStep)
-                    {
-                        case 1:
-                            HideHand();
-                            HideBoxChat();
-                            IncreaseStep();
-                            break;
-                        case 2:
-                            HideHand();
-                            HideBoxChat();
-                            IncreaseStep();
-                            break;
-                        case 3:
-                            HideHand();
-                            HideBoxChat();
-                            ShowLock(LockType.Transparent);
-                            IncreaseStep();
-                            break;
-                        case 4:
-                            ShowTap2Continue();
-                            Complete(tut);
-                            break;
-                    }
-                    break;
-                case 3:
-                    switch (save.CurStep)
-                    {
-                        case 1:
-                            HideHand();
-                            HideBoxChat();
-                            IncreaseStep();
-                            break;
-                        case 2:
-                            Complete(tut);
-                            break;
-                    }
-                    break;
-                case 4:
-                    switch (save.CurStep)
-                    {
-                        case 1:
-                            HideHand();
-                            HideBoxChat();
-                            IncreaseStep();
-                            break;
-                        case 2:
-                            HideHand();
-                            HideBoxChat();
-                            IncreaseStep();
-                            break;
-                        case 3:
-                            HideHand();
-                            HideBoxChat();
-                            Complete(tut);
                             break;
                     }
                     break;
@@ -272,6 +208,8 @@ public class TutorialManager : MonoBehaviour
     List<Tuple<Canvas, bool, int>> lstCv = new List<Tuple<Canvas, bool, int>>();
     List<Tuple<Canvas, bool, int>> lstOldCv = new List<Tuple<Canvas, bool, int>>();
     List<GameObjectLayer> lstOldLayer = new List<GameObjectLayer>();
+    List<Tuple<SortingGroup, int>> lstSg = new List<Tuple<SortingGroup, int>>();
+    List<Tuple<SortingGroup, int>> lstOldSg = new List<Tuple<SortingGroup, int>>();
 
     public void RayCast(GameObject obj)
     {
@@ -316,7 +254,17 @@ public class TutorialManager : MonoBehaviour
         iChangeLayer(obj, LayerMask.NameToLayer("UI"), isSave);
 
         SortingGroup sg = obj.GetComponent<SortingGroup>();
-        if (sg) sg.sortingOrder = 201;
+        if (sg == null)
+        {
+            sg = obj.AddComponent<SortingGroup>();
+            lstSg.Add(new Tuple<SortingGroup, int>(sg, sg.sortingOrder));
+        }
+        else
+        {
+            lstOldSg.Add(new Tuple<SortingGroup, int>(sg, sg.sortingOrder));
+        }
+
+        sg.sortingOrder = 201;
     }
 
     private void iChangeLayer(GameObject obj, int layer, bool isSave = false)
@@ -368,6 +316,18 @@ public class TutorialManager : MonoBehaviour
         {
             if (item == null || item.obj == null) continue;
             item.obj.layer = item.layer;
+        }
+        foreach (var item in lstSg)
+        {
+            if (item == null || item.Item1 == null) continue;
+            item.Item1.sortingOrder = item.Item2;
+
+            Destroy(item.Item1);
+        }
+        foreach (var item in lstOldSg)
+        {
+            if (item == null || item.Item1 == null) continue;
+            item.Item1.sortingOrder = item.Item2;
         }
 
         ShowLock(LockType.None);

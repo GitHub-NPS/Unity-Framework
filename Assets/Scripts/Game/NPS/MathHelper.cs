@@ -70,10 +70,29 @@ namespace NPS
         }
 
         /// <summary>
-        /// Int to Score
+        /// Compare Double
+        /// </summary>
+        public static int ScoreCompare(double valueA, double valueB)
+        {
+            if (valueA < 1000 && valueB < 1000)
+            {
+                valueA = Mathf.CeilToInt((float)valueA);
+                valueB = Mathf.CeilToInt((float)valueB);
+            }
+
+            return valueA == valueB ? 0 : ((valueA > valueB) ? 1 : -1);
+        }
+
+        /// <summary>
+        /// Double to Score
         /// </summary>
         public static string ScoreShow(double Score)
         {
+            if (Score < 1000)
+            {
+                return Mathf.CeilToInt((float)Score) + "";
+            }
+
             string result;
             string[] ScoreNames = new string[] { "", "k", "M", "B", "T", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az", "ba", "bb", "bc", "bd", "be", "bf", "bg", "bh", "bi", "bj", "bk", "bl", "bm", "bn", "bo", "bp", "bq", "br", "bs", "bt", "bu", "bv", "bw", "bx", "by", "bz", };
             int i;
@@ -136,13 +155,28 @@ namespace NPS
         public static List<float> Rate(List<float> rate)
         {
             var rs = new List<float>();
-            float sum = 0;
-            foreach (var item in rate)
+
+            if (rate.Count == 0)
             {
-                sum += item;
-                rs.Add(sum);
+                return rs;
             }
-            return rs;
+            else if (rate.Count == 1)
+            {
+                rs.Add(1);
+                return rs;
+            }
+            else
+            {
+                float sum = 0;
+                for (int i = 0; i < rate.Count - 1; i++)
+                {
+                    sum += rate[i];
+                    if (sum > 1) sum = 1;
+                    rs.Add(sum);
+                }
+                rs.Add(1);
+                return rs;
+            }
         }
 
         /// <summary>
