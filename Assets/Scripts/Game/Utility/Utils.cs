@@ -116,7 +116,8 @@ public static class Utils
             }
 
             count++;
-            if (count > max) {
+            if (count > max)
+            {
                 Debug.LogWarning("Not Get Random Position Agent");
                 radius -= 1;
                 count = 0;

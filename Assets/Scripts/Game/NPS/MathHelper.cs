@@ -115,9 +115,9 @@ namespace NPS
         {
             string str = "";
             if (time.Days > 0) str += time.Days + "d ";
-            if (time.Hours > 0 || (time.Days > 0)) str += time.Hours + "h ";
-            str += time.Minutes + "m ";
-            if (time.Days == 0) str += time.Seconds + "s";
+            if (time.Hours > 0) str += time.Hours + "h ";
+            if (time.Minutes > 0) str += time.Minutes + "m ";
+            if (time.Days == 0 && time.Seconds > 0) str += time.Seconds + "s";
 
             return str;
         }

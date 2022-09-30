@@ -89,7 +89,7 @@ public class TutorialManager : MonoBehaviour
                 case 1:
                     switch (save.CurStep)
                     {
-                        case 1:
+                        case 1:                            
                             break;
                         case 2:
                             break;
@@ -208,6 +208,7 @@ public class TutorialManager : MonoBehaviour
     List<Tuple<Canvas, bool, int>> lstCv = new List<Tuple<Canvas, bool, int>>();
     List<Tuple<Canvas, bool, int>> lstOldCv = new List<Tuple<Canvas, bool, int>>();
     List<GameObjectLayer> lstOldLayer = new List<GameObjectLayer>();
+
     List<Tuple<SortingGroup, int>> lstSg = new List<Tuple<SortingGroup, int>>();
     List<Tuple<SortingGroup, int>> lstOldSg = new List<Tuple<SortingGroup, int>>();
 
@@ -234,7 +235,7 @@ public class TutorialManager : MonoBehaviour
             }
 
             cv.overrideSorting = true;
-            cv.sortingOrder = 201;
+            cv.sortingOrder = 202;
 
             GraphicRaycaster rc = obj.GetComponent<GraphicRaycaster>();
             if (rc == null)
@@ -285,7 +286,7 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    private void Clear()
+    public void Clear()
     {
         foreach (var item in lstRc)
         {
