@@ -66,7 +66,7 @@ public class UnbiasedTime : MonoSingleton<UnbiasedTime>
     {
 #if UNITY_ANDROID
         UpdateTimeOffsetAndroid();
-#elif UNITY_IPHONE
+#elif UNITY_IPHONE && !UNITY_EDITOR
 		UpdateTimeOffsetIOS();
 #endif
     }
@@ -78,10 +78,10 @@ public class UnbiasedTime : MonoSingleton<UnbiasedTime>
     {
 #if UNITY_ANDROID
         return UsingSystemTimeAndroid();
-#elif UNITY_IPHONE
+#elif UNITY_IPHONE && !UNITY_EDITOR
 			return UsingSystemTimeIOS();
 #else
-			return true;
+        return true;
 #endif
     }
 
@@ -89,7 +89,7 @@ public class UnbiasedTime : MonoSingleton<UnbiasedTime>
     {
 #if UNITY_ANDROID
         StartAndroid();
-#elif UNITY_IPHONE
+#elif UNITY_IPHONE && !UNITY_EDITOR
 			StartIOS();
 #endif
     }
@@ -98,7 +98,7 @@ public class UnbiasedTime : MonoSingleton<UnbiasedTime>
     {
 #if UNITY_ANDROID
         EndAndroid();
-#elif UNITY_IPHONE
+#elif UNITY_IPHONE && !UNITY_EDITOR
 			EndIOS();
 #endif
     }
@@ -106,8 +106,8 @@ public class UnbiasedTime : MonoSingleton<UnbiasedTime>
     // Platform specific code
     // 
 
-#if UNITY_IPHONE
-	[DllImport ("__Internal")]
+#if UNITY_IPHONE && !UNITY_EDITOR
+    [DllImport ("__Internal")]
 	private static extern void _vtcOnSessionStart();
 
 	[DllImport ("__Internal")]

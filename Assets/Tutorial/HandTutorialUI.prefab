@@ -101,10 +101,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4832982092191315890}
-  - component: {fileID: 8214430188909286000}
-  - component: {fileID: 4604107549215189091}
+  - component: {fileID: 6809993036826149394}
   m_Layer: 5
-  m_Name: HandTutorial
+  m_Name: HandTutorialUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -130,7 +129,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8214430188909286000
+--- !u!114 &6809993036826149394
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -139,33 +138,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 8947646010476952091}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 11414963de0de2b42becc3e8aaa33125, type: 3}
+  m_Script: {fileID: 11500000, guid: b868aa7fe48bf7440bc8176071ed9944, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ga: {fileID: 728667118272691518}
-  speed: 3
+  hand: {fileID: 8811218251888155339}
+  speed: 2
   fx: {fileID: 188243346975955394}
---- !u!223 &4604107549215189091
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8947646010476952091}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 1
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 203
-  m_TargetDisplay: 0
 --- !u!1001 &6725511636983408330
 PrefabInstance:
   m_ObjectHideFlags: 0

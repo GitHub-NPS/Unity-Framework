@@ -27,7 +27,8 @@ namespace ScriptableObjectArchitecture
 
         public T2 Get(T1 key)
         {
-            return data[key];
+            if (data.ContainsKey(key)) return data[key];
+            return default;
         }
     }
 }

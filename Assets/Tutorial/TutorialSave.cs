@@ -2,7 +2,7 @@ using BayatGames.SaveGameFree;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class TutorialSave: IDataSave
+public class TutorialSave : IDataSave
 {
     private string key = "Tutorial";
 
@@ -11,9 +11,15 @@ public class TutorialSave: IDataSave
 
     public List<int> Complete = new List<int>();
 
+    public TutorialSave()
+    {
+        CurTut = 0;
+        CurStep = 0;
+    }
+
     public void Fix()
     {
-        
+
     }
 
     public void Save()
