@@ -22,6 +22,8 @@
 
 	    public int             totalItemCount   = 99;
 	    public RectTransform   itemPrototype    = null;
+        public int             itemCount        = 0;
+        public bool            isUpdate         = true;
 
         public void scrollToLastPos () {
 
@@ -88,7 +90,7 @@
 
             // instantiate items
 
-            var itemCount = (int)(this.viewportSize / this.itemSize) + 3;
+            itemCount = (int)(this.viewportSize / this.itemSize) + 3;
 
 		    for( var i = 0; i < itemCount; ++i ) {
 
@@ -112,6 +114,8 @@
 
 
 	    private void Update () {
+
+            if (!isUpdate) return;
 
             if( this.totalItemCount != this.prevTotalItemCount ) {
 

@@ -7,13 +7,119 @@ using System.Linq;
 using System.Text;
 using I2.Loc;
 using TMPro;
+using UnityEditor.SceneManagement;
 
 #if UNITY_EDITOR
-public static class EditorTools
+public class EditorTools : EditorWindow
 {
-    #region I2
-    [MenuItem("Tools/List Unique Char")]
-    private static void DistinctAllCharacterInSheet()
+    public class AssetDatabaseUtils
+    {
+        public static string GetSelectionObjectPath()
+        {
+            var path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            if (path == "")
+            {
+                path = "Assets";
+            }
+            else if (Path.GetExtension(path) != "")
+            {
+                path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
+            }
+            return path;
+        }
+
+        public static T GetAssetOfType<T>(string name, System.Type mainType = null) where T : class
+        {
+            if (mainType == null)
+            {
+                mainType = typeof(T);
+            }
+            var guids = AssetDatabase.FindAssets(name + " t:" + mainType.Name);
+            if (guids.Length == 0)
+                return null;
+            string guid = guids[0];
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            foreach (var o in AssetDatabase.LoadAllAssetsAtPath(path))
+            {
+                var res = o as T;
+                if (res != null)
+                {
+                    return res;
+                }
+            }
+            return default(T);
+        }
+
+        public static string GetAssetPathOfType<T>(string name, System.Type mainType = null) where T : class
+        {
+            if (mainType == null)
+            {
+                mainType = typeof(T);
+            }
+            var guids = AssetDatabase.FindAssets(name + " t:" + mainType.Name);
+            if (guids.Length == 0)
+                return null;
+            string guid = guids[0];
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            return path;
+        }
+
+        public static T GetAssetOfType<T>(bool unique = false) where T : class
+        {
+            var guids = AssetDatabase.FindAssets("t:" + typeof(T).FullName);
+            if (guids.Length == 0)
+                return null;
+            if (guids.Length > 1 && unique)
+            {
+                var pathes = "";
+                foreach (var g in guids)
+                {
+                    var assetPath = AssetDatabase.GUIDToAssetPath(g);
+                    pathes += assetPath + "\n";
+                }
+                throw new System.ArgumentException("Has multiple objects with this type: \n" + pathes);
+            }
+            var guid = guids[0];
+            var path = AssetDatabase.GUIDToAssetPath(guid);
+            return AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
+        }
+
+        public static T[] GetAssetsOfType<T>() where T : class
+        {
+            if (typeof(UnityEngine.Component).IsAssignableFrom(typeof(T)))
+            {
+                var guidsGO = AssetDatabase.FindAssets("t:Prefab");
+                var l = new List<T>();
+                foreach (var g in guidsGO)
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(g);
+                    var t = (AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject).GetComponent<T>();
+                    if (t != null)
+                    {
+                        l.Add(t);
+                    }
+                }
+                return l.ToArray();
+            }
+
+            var guids = AssetDatabase.FindAssets("t:" + typeof(T).FullName);
+            if (guids.Length == 0)
+                return null;
+
+            var i = 0;
+            var res = new T[guids.Length];
+            foreach (var g in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(g);
+                var t = AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
+                res[i] = t;
+                i++;
+            }
+            return res;
+        }
+    }
+
+    private void DistinctAllCharacterInSheet()
     {
         var path = "Assets/Localization/Characters/CharacterSheet_{0}.txt";
         var pathCharId = "Assets/Localization/Characters/CharacterId_{0}.txt";
@@ -113,7 +219,7 @@ public static class EditorTools
         Debug.Log("List Unique Char");
     }
 
-    private static void AddMissingCharacters(string language, string characters)
+    private void AddMissingCharacters(string language, string characters)
     {
         if (characters.Length <= 0) return;
 
@@ -138,7 +244,7 @@ public static class EditorTools
         }
     }
 
-    private static bool HasCharacter(TMP_FontAsset font, char character)
+    private bool HasCharacter(TMP_FontAsset font, char character)
     {
         if (font.atlasPopulationMode == AtlasPopulationMode.Dynamic)
         {
@@ -164,7 +270,7 @@ public static class EditorTools
         return false;
     }
 
-    static void AppendToCharSet(ref HashSet<char> sb, string text, bool isRTL)
+    private void AppendToCharSet(ref HashSet<char> sb, string text, bool isRTL)
     {
         if (string.IsNullOrEmpty(text)) return;
 
@@ -180,7 +286,7 @@ public static class EditorTools
         }
     }
 
-    static string RemoveTagsPrefix(string text, string tagPrefix)
+    private string RemoveTagsPrefix(string text, string tagPrefix)
     {
         var idx = 0;
         while (idx < text.Length)
@@ -208,126 +314,40 @@ public static class EditorTools
 
         return text;
     }
-}
 
-public class AssetDatabaseUtils
-{
-
-    public static string GetSelectionObjectPath()
+    [MenuItem("Tools/Show Tool")]
+    public static void ShowWindow()
     {
-        var path = AssetDatabase.GetAssetPath(Selection.activeObject);
-        if (path == "")
-        {
-            path = "Assets";
-        }
-        else if (Path.GetExtension(path) != "")
-        {
-            path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
-        }
-        return path;
+        GetWindow(typeof(EditorTools)).titleContent = new GUIContent("Editor Tool");
     }
 
-    public static T GetAssetOfType<T>(string name, System.Type mainType = null) where T : class
+    private void OnGUI()
     {
-        if (mainType == null)
+        if (GUILayout.Button("List Unique Char")) DistinctAllCharacterInSheet();
+        if (GUILayout.Button("Clear Save Data")) ClearSaveData();
+        if (GUILayout.Button("Clear Live Data")) ClearLiveData();
+
+        GUILayout.Label("List Scene", EditorStyles.boldLabel);
+        var scenes = EditorBuildSettings.scenes;
+        if (scenes.Length <= 0)
+            return;
+        foreach (var scene in scenes)
         {
-            mainType = typeof(T);
+            if (!GUILayout.Button(scene.path))
+                continue;
+            EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
+            EditorSceneManager.OpenScene(scene.path);
         }
-        var guids = AssetDatabase.FindAssets(name + " t:" + mainType.Name);
-        if (guids.Length == 0)
-            return null;
-        string guid = guids[0];
-        string path = AssetDatabase.GUIDToAssetPath(guid);
-        foreach (var o in AssetDatabase.LoadAllAssetsAtPath(path))
-        {
-            var res = o as T;
-            if (res != null)
-            {
-                return res;
-            }
-        }
-        return default(T);
     }
 
-    public static string GetAssetPathOfType<T>(string name, System.Type mainType = null) where T : class
-    {
-        if (mainType == null)
-        {
-            mainType = typeof(T);
-        }
-        var guids = AssetDatabase.FindAssets(name + " t:" + mainType.Name);
-        if (guids.Length == 0)
-            return null;
-        string guid = guids[0];
-        string path = AssetDatabase.GUIDToAssetPath(guid);
-        return path;
-    }
-
-    public static T GetAssetOfType<T>(bool unique = false) where T : class
-    {
-        var guids = AssetDatabase.FindAssets("t:" + typeof(T).FullName);
-        if (guids.Length == 0)
-            return null;
-        if (guids.Length > 1 && unique)
-        {
-            var pathes = "";
-            foreach (var g in guids)
-            {
-                var assetPath = AssetDatabase.GUIDToAssetPath(g);
-                pathes += assetPath + "\n";
-            }
-            throw new System.ArgumentException("Has multiple objects with this type: \n" + pathes);
-        }
-        var guid = guids[0];
-        var path = AssetDatabase.GUIDToAssetPath(guid);
-        return AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
-    }
-
-    public static T[] GetAssetsOfType<T>() where T : class
-    {
-        if (typeof(UnityEngine.Component).IsAssignableFrom(typeof(T)))
-        {
-            var guidsGO = AssetDatabase.FindAssets("t:Prefab");
-            var l = new List<T>();
-            foreach (var g in guidsGO)
-            {
-                var path = AssetDatabase.GUIDToAssetPath(g);
-                var t = (AssetDatabase.LoadAssetAtPath(path, typeof(GameObject)) as GameObject).GetComponent<T>();
-                if (t != null)
-                {
-                    l.Add(t);
-                }
-            }
-            return l.ToArray();
-        }
-
-        var guids = AssetDatabase.FindAssets("t:" + typeof(T).FullName);
-        if (guids.Length == 0)
-            return null;
-
-        var i = 0;
-        var res = new T[guids.Length];
-        foreach (var g in guids)
-        {
-            var path = AssetDatabase.GUIDToAssetPath(g);
-            var t = AssetDatabase.LoadAssetAtPath(path, typeof(T)) as T;
-            res[i] = t;
-            i++;
-        }
-        return res;
-    }
-    #endregion
-
-    [MenuItem("Tools/Clear Save Data")]
-    private static void ClearSaveData()
+    private void ClearSaveData()
     {
         SaveGame.Clear();
         PlayerPrefs.DeleteAll();
         Debug.Log("Clear Save Data");
     }
 
-    [MenuItem("Tools/Clear Live Data")]
-    private static void ClearLiveData()
+    private void ClearLiveData()
     {
         //Resources.Load<DemoLive>("Live/DemoLive").Clear();
         Debug.Log("Clear Live Data");

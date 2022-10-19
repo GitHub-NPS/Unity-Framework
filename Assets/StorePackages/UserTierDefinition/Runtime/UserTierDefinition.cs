@@ -42,15 +42,32 @@ namespace UserTierDefinition.Runtime
             var www = UnityWebRequest.Get(configUrl);
             yield return www.SendWebRequest();
             if (www.error != null) yield return null;
-            var responseModel = JsonUtility.FromJson<ResponseModel>(www.downloadHandler.text);
-            if (responseModel != null && responseModel.status == 200)
+            if (ValidateJson(www.downloadHandler.text))
             {
-                tier = responseModel.data.tier;
-                country = responseModel.data.country;
-                countryCode = responseModel.data.country_code;
-                PlayerPrefs.SetString(PlayerPrefsKey, JsonUtility.ToJson(responseModel.data));
-                PlayerPrefs.Save();
+                var responseModel = JsonUtility.FromJson<ResponseModel>(www.downloadHandler.text);
+                if (responseModel != null && responseModel.status == 200)
+                {
+                    tier = responseModel.data.tier;
+                    country = responseModel.data.country;
+                    countryCode = responseModel.data.country_code;
+                    PlayerPrefs.SetString(PlayerPrefsKey, JsonUtility.ToJson(responseModel.data));
+                    PlayerPrefs.Save();
+                }
             }
         }
+        
+        private bool ValidateJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return false;
+            
+            json = json.Trim();
+            if (json.StartsWith("{") && json.EndsWith("}") || json.StartsWith("[") && json.EndsWith("]"))
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
     }
 }

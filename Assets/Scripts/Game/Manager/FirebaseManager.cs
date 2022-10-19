@@ -154,7 +154,7 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
     {
         var id = (string)data[0];
 #if UNITY_FIREBASE
-        if (m_IsInitialized)
+        if (IsAnalytics)
         {
             Firebase.Analytics.Parameter[] arrParams = {
                 new Firebase.Analytics.Parameter("id", id)
