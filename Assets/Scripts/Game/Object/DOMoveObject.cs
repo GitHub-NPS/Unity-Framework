@@ -16,7 +16,7 @@ public class DOMoveObject : MonoBehaviour
 
         if (direction)
         {
-            float angle = MathHelper.Angle(from, to);
+            float angle = from.AngleTo(to);
             this.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
 

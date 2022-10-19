@@ -11,7 +11,6 @@ public class ApiManager : MonoSingleton<ApiManager>
     private const string BaseUrl = "https://zombie-blade.unimob.com.vn/api/";
 
     private const string UserUrl = BaseUrl + "user";
-    private const string ArenaUrl = BaseUrl + "arena";
 
     private UserSave user;
 
@@ -21,18 +20,6 @@ public class ApiManager : MonoSingleton<ApiManager>
         if (parent) transform.SetParent(parent);
 
         user = DataManager.Save.User;
-    }
-
-    public void GetArenaTop(Action<Package> result)
-    {
-        var url = ArenaUrl + $"/top?id={user.id}";
-        StartCoroutine(_GetData(url, result));
-    }
-
-    public void GetArenaTime(Action<Package> result)
-    {
-        var url = ArenaUrl + $"/time";
-        StartCoroutine(_GetData(url, result));
     }
 
     public void GetUserData(Action<Package> result)
@@ -53,33 +40,13 @@ public class ApiManager : MonoSingleton<ApiManager>
             return;
         }
 
-        var url = UserUrl + "/set";
+        var url = $"{UserUrl}/set";
         var form = new WWWForm();
         form.AddField("id", user.id);
         form.AddField("name", user.name);
         form.AddField("avatar", user.avatar);
         form.AddField("data", "");
         form.AddField("version", Application.version);
-
-        StartCoroutine(_PostData(url, form, result));
-    }
-
-    public void PostUpdateScore(Action<Package> result = null)
-    {
-        if (string.IsNullOrEmpty(user.id))
-        {
-            result?.Invoke(new Package()
-            {
-                status = 404,
-                message = "NULL"
-            });
-            return;
-        }
-
-        var url = ArenaUrl + $"/set";
-        var form = new WWWForm();
-        form.AddField("id", user.id);
-        form.AddField("score", (int)user.Currency[CurrencyType.Medal]);
 
         StartCoroutine(_PostData(url, form, result));
     }
@@ -166,26 +133,4 @@ public class UserPackage
     public string id;
     public string name;
     public string avatar;
-}
-
-public class TopPackage
-{
-    public List<RankPackage> top;
-}
-
-public class TimePackage
-{
-    public string time_now;
-    public string time_start;
-    public string time_end;
-}
-
-public class RankPackage
-{
-    public string id;
-    public string name;
-    public string avatar;
-    public string score;
-    public int rank;
-    public string imageUrl;
 }

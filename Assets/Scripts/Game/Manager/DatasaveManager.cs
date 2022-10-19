@@ -56,9 +56,6 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         DataManager.Save = this;
         if (parent) transform.SetParent(parent);
 
-#if DEVELOPMENT || UNITY_EDITOR
-        encode = false;
-#endif
         SaveGame.Encode = encode;
         SaveGame.EncodePassword = password;
         SaveGame.Serializer = new SaveGameJsonSerializer();
@@ -71,19 +68,21 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
     private void FixData()
     {
         remoteConfig.Fix();
-        general.Fix();
-        tutorial.Fix();
+        general.Fix();        
         user.Fix();
+        tutorial.Fix();
     }
 
-    //private void OnApplicationPause(bool pause)
-    //{
-    //    Debug.Log("Pause: " + pause);
-    //    if (pause) Save();
-    //}
+    private void OnApplicationPause(bool pause)
+    {
+        Debug.Log("Pause: " + pause);
+        if (pause) Save();
+    }
 
     private void OnApplicationQuit()
     {
+        general.SetLastTimeOut();
+
         Debug.Log("Quit");
         Save();
     }

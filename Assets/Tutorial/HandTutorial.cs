@@ -4,39 +4,31 @@ using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NPS;
 
-public class HandTutorial : MonoBehaviour
+public abstract class HandTutorial : MonoBehaviour
 {
-    [SerializeField] private SkeletonGraphic ga;
-    [SerializeField] private float speed = 5;
+    [SerializeField] protected GameObject hand;
+    [SerializeField] private float speed = 2;
     [SerializeField] private GameObject fx;
 
-    private void Awake()
-    {
-        ga.Initialize(false);
-    }
+    public abstract void Set(HandType type);
 
-    public void Set(bool isUI, HandType type)
-    {        
-        ga.AnimationState.SetAnimation(0, Constant.HandType2Anim[type], true);
-    }
-
-    public IEnumerator<float> _Move(Vector3 posEnd, Vector3 posStart, bool isLoop = false)
+    public IEnumerator<float> _Move(Transform end, Transform start, bool isLoop = false)
     {
-        this.transform.position = posStart;
         fx.SetActive(true);
 
         while (true)
         {
-            float step = speed * Time.deltaTime;
-            this.gameObject.transform.position = Vector3.MoveTowards(transform.position, posEnd, step);
+            float step = speed * Time.fixedDeltaTime;
+            this.gameObject.transform.position = Vector3.MoveTowards(transform.position, end.position, step);
 
-            if (Vector3.Distance(transform.position, posEnd) < 0.001f)
+            if (transform.position.SqrMagnitude(end.position) < 0.001f)
             {
                 if (isLoop)
                 {
                     fx.SetActive(false);
-                    this.transform.position = posStart;
+                    this.transform.position = start.position;
                     fx.SetActive(true);
                 }
                 else break;

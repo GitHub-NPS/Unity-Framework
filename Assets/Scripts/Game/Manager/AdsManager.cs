@@ -13,7 +13,7 @@ public class AdsManager : MonoSingleton<AdsManager>
     public bool IsInit => m_IsInit;
     public bool IsShowBanner => m_IsShowBanner;
 
-    private string AppKey = "140ded3a1";
+    private string AppKey = "16b5f8965";
     private System.Action<bool> m_OnCompleteShowAd;
     private static int m_LoadInterstitialCount;
     private static int m_LoadBannerCount;
@@ -37,7 +37,7 @@ public class AdsManager : MonoSingleton<AdsManager>
     private void Awake()
     {
 #if ANDROID_FREE_PRODUCTION
-        AppKey = "140ded3a1";
+        AppKey = "16b5f8965";
 #elif IOS_FREE_PRODUCTION
         AppKey = "1600189085";
         
@@ -342,8 +342,6 @@ public class AdsManager : MonoSingleton<AdsManager>
             }
 
             Debug.Log("Show Rewarded Ad success");
-
-            AppManager.Firebase.OnAdsReward();
 #endif
 
 #if UNITY_APPLOVIN_SDK

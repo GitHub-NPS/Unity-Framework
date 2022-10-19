@@ -4,7 +4,7 @@ using System;
 public class CurrencyData
 {
     public CurrencyType Type = CurrencyType.Coin;
-    public ulong Value = 0;
+    public double Value = 0;
 
     public CurrencyData Clone()
     {

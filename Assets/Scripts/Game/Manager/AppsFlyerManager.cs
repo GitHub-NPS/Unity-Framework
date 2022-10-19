@@ -11,7 +11,7 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 {
     private string devKey = "HWAAfxs6ec2wwZfsRpjipJ";
 
-    private string androidPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlZYAqA286v62RdPKgThx14xtqk49CIviIaX1DWaR5DI8ov0gFyRiLp6OtTJOF62TDbul//b5zIFMHPwC5KBXTRjwcLfsVTAfGFP0+PPZJEe4luNU9FnT3rfgzKEkspfq772gIFFlqZ4fVLEz5KwF1d1qHhBy1VlevP64Uzm1BlndpBdQ0qUOlCDXdrx+KQuqyDpMCSOqceC/76Ju9N+e1QWZ1C/TYxjVILD3ovJ7eDN5cl1pffQomBAAMPYe0zxEuNTSu1znaKm3aLawTO3gZqVuRDP483imhtZV1Dz6nPpAw/PfuJfM1P6KPxyjvaD3ZlkieQvCUg6mi5r2qNc//QIDAQAB";
+    private string androidPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCeSSfGeB/YmRP5V8KHqyb19C6e9M4S2AeNpVcIylOpgSTIeTImzjz0RCXnYjnGZrkuruO9Fgn/FcLPN1015JUNmEUOU1p6R0pL+ugvkuKeP9xQf1s8QrCToENS0EnHiC3fJOcUi3za8XKKqt2Tn1pqyua5l2yQt0TTN5HuK/QzSV4zDE787UXeaEfh7sxd5+pOfVRkpXWcdWdbzecffRvTs7CwWiPZ3mqDM5ADjp/gmT81sfSI21h7fKOkHFRKP5jM7mNsm/Nqnq6v5GE4pdC+lndxtAbn2+dUQcKHb7QzLqDd/aDEguRw4mB3CcSsplL0m6ONqyj49fGXUwyx43QIDAQAB";
     private string iOSAppId = "1600189085";
     private bool m_IsInitialized = false;
 
@@ -154,23 +154,23 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 #endif
     }
 
-    public void UninstallTracking(string token)
-    {
-#if UNITY_APPSFLYER
-#if UNITY_ANDROID
-        AppsFlyerAndroid.updateServerUninstallToken(token);
-#endif
-#endif
-    }
-
-    public void AndroidRevenueTracking(string signature, string purchaseData, string price, string currency)
-    {
-#if UNITY_APPSFLYER
-#if UNITY_ANDROID
-        AppsFlyerAndroid.validateAndSendInAppPurchase(androidPublicKey, signature, purchaseData, price, currency, null, this);
-#endif
-#endif
-    }
+//     public void UninstallTracking(string token)
+//     {
+// #if UNITY_APPSFLYER
+// #if UNITY_ANDROID
+//         //AppsFlyerAndroid.updateServerUninstallToken(token);
+// #endif
+// #endif
+//     }
+//
+//     public void AndroidRevenueTracking(string signature, string purchaseData, string price, string currency)
+//     {
+// #if UNITY_APPSFLYER
+// #if UNITY_ANDROID
+//         AppsFlyerAndroid.validateAndSendInAppPurchase(androidPublicKey, signature, purchaseData, price, currency, null, this);
+// #endif
+// #endif
+//     }
 
     public void iOSRevenueTracking(string prodId, string price, string currency, string transactionId)
     {

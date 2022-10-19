@@ -1,10 +1,8 @@
-using MEC;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -116,7 +114,8 @@ public static class Utils
             }
 
             count++;
-            if (count > max) {
+            if (count > max)
+            {
                 Debug.LogWarning("Not Get Random Position Agent");
                 radius -= 1;
                 count = 0;
@@ -135,30 +134,10 @@ public static class Utils
         return ProCameraManager.S.Camera.ScreenToWorldPoint(new Vector3(x, y, ProCameraManager.S.Camera.nearClipPlane));
     }
 
-    public static void MergeData(this List<LootData> rewards, LootData reward)
-    {
-        if (reward.Type == LootType.Currency)
-        {
-            int idx = rewards.FindIndex(x => x.Type == reward.Type && ((CurrencyData)x.Data).Type == ((CurrencyData)reward.Data).Type);
-            if (idx != -1)
-            {
-                CurrencyData data = (CurrencyData)rewards[idx].Data;
-                data.Value += ((CurrencyData)reward.Data).Value;
-            }
-            else rewards.Add(reward);
-        }
-        else rewards.Add(reward);
-    }
-
     public static Color HtmlToColor(string html)
     {
         ColorUtility.TryParseHtmlString(html, out Color color);
         return color;
-    }
-
-    public static int KindOfRankEndGamePvp(int rank)
-    {
-        return rank >= 3 ? 3 : rank;
     }
 
     public static string Serialize(this object data)
@@ -191,26 +170,5 @@ public static class Utils
         }
 
         return result;
-    }
-
-    public static void Loot(List<LootData> rewards, string source = "")
-    {
-        foreach (var item in rewards)
-        {
-            Loot(item, source);
-        }
-
-        DataManager.Save.User.Save();
-    }
-
-    public static void Loot(LootData reward, string source = "")
-    {
-        switch (reward.Type)
-        {
-            case LootType.Currency:
-                var currency = reward.Data as CurrencyData;
-                DataManager.Save.User.IncreaseCurrency(currency);
-                break;
-        }
-    }
+    }    
 }

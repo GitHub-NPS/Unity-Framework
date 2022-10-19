@@ -19,8 +19,8 @@ public class ProCameraManager : MonoBehaviour
         if (!S) S = this;
 
         cam = Camera.main;
-        m_Camera = cam.GetComponent<ProCamera2D>();
-        m_Camera_Shake = m_Camera.GetComponent<ProCamera2DShake>();
+        if (m_Camera) m_Camera = cam.GetComponent<ProCamera2D>();
+        if (m_Camera_Shake) m_Camera_Shake = m_Camera.GetComponent<ProCamera2DShake>();
     }
 
     private void Start()

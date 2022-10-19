@@ -34,7 +34,7 @@ namespace NPS
         /// <summary>
         /// Prefab sẽ Pooling
         /// </summary>
-        [SerializeField] T prefab;
+        [SerializeField] public T prefab;
         /// <summary>
         /// Parent chứa object
         /// </summary>

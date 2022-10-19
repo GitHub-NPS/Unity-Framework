@@ -1,7 +1,3 @@
-using Sirenix.OdinInspector;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using NPS;
 
@@ -11,7 +7,6 @@ public class DatabaseManager : MonoSingleton<DatabaseManager>
 
     private void Start()
     {
-        
     }
 
     public void Init(Transform parent = null)
