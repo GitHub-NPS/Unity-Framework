@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 3923196664620087358}
   - component: {fileID: 7466834089664822643}
   m_Layer: 5
-  m_Name: UILootItem
+  m_Name: UIItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

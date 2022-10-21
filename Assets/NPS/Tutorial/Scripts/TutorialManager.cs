@@ -43,5 +43,5 @@ public class TutorialManager : Manager
         }
 
         return false;
-    }    
+    }
 }

@@ -2,8 +2,9 @@ using NPS;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NPS.Loot;
 
-public class UILootCurrency : UILootItem
+public class UIItemCurrency : UIItem
 {
     public override void Set(object data)
     {

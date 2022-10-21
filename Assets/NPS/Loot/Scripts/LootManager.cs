@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using NPS.Loot;
 
-public class LootAreaInLayerAndTag : InteractAreaInLayerAndTag<ILoot>
+public class LootManager : Manager
 {
     
 }

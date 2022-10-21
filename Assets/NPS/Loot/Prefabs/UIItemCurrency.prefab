@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2541865496968282137, guid: 59ea7d8fd3536574e8e2efb205b497bb, type: 3}
       propertyPath: m_Name
-      value: UILootCurrency
+      value: UIItemCurrency
       objectReference: {fileID: 0}
     - target: {fileID: 3923196664620087358, guid: 59ea7d8fd3536574e8e2efb205b497bb, type: 3}
       propertyPath: m_Pivot.x
