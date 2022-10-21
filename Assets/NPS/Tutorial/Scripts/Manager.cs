@@ -7,24 +7,22 @@ namespace NPS
 {
     namespace Tutorial
     {
-        public class Manager : MonoBehaviour
+        public class Manager : MonoSingleton<TutorialManager>
         {
-            public static Manager S;
-            public static UITutorial UI => S.ui;
-            [SerializeField] protected UITutorial ui;
+            protected static UITutorial ui;
+            public static UITutorial UI
+            {
+                get
+                {
+                    if (!ui) ui = FindObjectOfType<UITutorial>();
+                    return ui;
+                }
+            }            
 
             protected TutorialSave save;
 
-#if UNITY_EDITOR
-            private void OnValidate()
-            {
-                ui = GetComponent<UITutorial>();
-            }
-#endif
-
             protected virtual void Awake()
             {
-                if (!S) S = this;
                 save = DataManager.Save.Tutorial;
             }
 

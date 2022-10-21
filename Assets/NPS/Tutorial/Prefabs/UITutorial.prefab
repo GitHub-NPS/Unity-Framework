@@ -786,9 +786,8 @@ GameObject:
   - component: {fileID: 3741710297418681838}
   - component: {fileID: 6592117887969128123}
   - component: {fileID: 7179737992059984716}
-  - component: {fileID: 777882359646844896}
   m_Layer: 5
-  m_Name: Tutorial
+  m_Name: UITutorial
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -846,18 +845,6 @@ MonoBehaviour:
   objSkip: {fileID: 4726273935799054714}
   objTap2Continue: {fileID: 828359898522449469}
   boxChatPrb: {fileID: 4410795599781568443, guid: 642717ed8c3b7ba48a44e902361445c4, type: 3}
---- !u!114 &777882359646844896
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4739857096253755164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbbb255ecc99dbd4aabf22b77a8f8815, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &5495815513831842907
 GameObject:
   m_ObjectHideFlags: 0

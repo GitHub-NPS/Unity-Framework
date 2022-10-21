@@ -13,8 +13,6 @@ namespace NPS
     {
         public class UITutorial : MonoBehaviour
         {
-            public static UITutorial S;
-
             #region Properties
 
             [SerializeField] private GameObject lockBlack;
@@ -35,11 +33,6 @@ namespace NPS
             private CoroutineHandle handMove;
 
             #endregion
-
-            private void Awake()
-            {
-                if (!S) S = this;
-            }
 
             #region Handler 1
             public void Skip()

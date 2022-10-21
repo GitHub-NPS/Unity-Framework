@@ -4,7 +4,7 @@ using UnityEngine;
 using NPS;
 using NPS.Tutorial;
 
-public class Tutorial : Manager
+public class TutorialManager : Manager
 {
     private UserSave userSave;
 
@@ -34,7 +34,7 @@ public class Tutorial : Manager
                     switch (step)
                     {
                         case 3:
-                            //ui.HideHand();
+                            //UI.HideHand();
                             //Complete(save.CurTut);
                             return true;
                     }
