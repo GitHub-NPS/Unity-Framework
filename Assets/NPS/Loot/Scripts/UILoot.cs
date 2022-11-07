@@ -31,7 +31,7 @@ namespace NPS
                 {
                     if (dicLootItem.ContainsKey(item.Type))
                     {
-                        var obj = PoolManager.S.Spawn(dicLootItem[item.Type].Item, lootContent);
+                        var obj = NPS.Pooling.Manager.S.Spawn(dicLootItem[item.Type].Item, lootContent);
                         obj.Set(item.Data);
                         obj.Light(true);
 
@@ -46,7 +46,7 @@ namespace NPS
             {
                 foreach (var item in items)
                 {
-                    PoolManager.S.Despawn(item.gameObject);
+                    NPS.Pooling.Manager.S.Despawn(item.gameObject);
                 }
                 items.Clear();
 

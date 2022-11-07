@@ -26,7 +26,7 @@ public class Bullet : MonoBehaviour
         {
             iHit.Hit(damage);
 
-            PoolManager.S.Despawn(this.gameObject);
+            NPS.Pooling.Manager.S.Despawn(this.gameObject);
         }
     }
 }

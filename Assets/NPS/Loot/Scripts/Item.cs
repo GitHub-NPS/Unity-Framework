@@ -35,7 +35,7 @@ namespace NPS
                 {
                     iLoot.Loot(data);
                     cl.enabled = false;
-                    PoolManager.S.Despawn(this.gameObject);
+                    NPS.Pooling.Manager.S.Despawn(this.gameObject);
                 }
             }
 

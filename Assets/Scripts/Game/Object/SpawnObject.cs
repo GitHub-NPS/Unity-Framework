@@ -20,7 +20,7 @@ public class SpawnObject : MonoBehaviour
 
     public virtual void Spawn()
     {
-        var obj = pool ? PoolManager.S.Spawn(prefab, parent) : Instantiate(prefab, parent);
+        var obj = pool ? NPS.Pooling.Manager.S.Spawn(prefab, parent) : Instantiate(prefab, parent);
         obj.transform.position = this.transform.position;
     }
 }

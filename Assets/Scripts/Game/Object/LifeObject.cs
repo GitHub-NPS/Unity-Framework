@@ -39,7 +39,7 @@ public class LifeObject : MonoBehaviour
     protected virtual void Die()
     {
         OnDie?.Invoke();
-        PoolManager.S.Despawn(this.gameObject);
+        NPS.Pooling.Manager.S.Despawn(this.gameObject);
     }
 
     public void OneShot(DamageData damage)

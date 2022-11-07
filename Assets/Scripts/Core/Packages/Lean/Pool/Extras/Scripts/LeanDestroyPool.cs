@@ -19,6 +19,6 @@ public class LeanDestroyPool : LeanDestroy
         Execute = m_execute;
         Seconds = m_seconds;
 
-        PoolManager.S.Despawn(Target != null ? Target : gameObject);
+        NPS.Pooling.Manager.S.Despawn(Target != null ? Target : gameObject);
     }
 }
