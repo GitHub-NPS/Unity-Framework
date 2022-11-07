@@ -82,7 +82,7 @@ public static class CustomBuilder {
         RemoveScriptingDefineSymbol("DEVELOPMENT"); // Someone might accidentally add this
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
-        EditorUserBuildSettings.symlinkLibraries = false;
+        EditorUserBuildSettings.symlinkSources = false;
         EditorUserBuildSettings.androidCreateSymbolsZip = true;
         EditorUserBuildSettings.buildAppBundle = true;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
@@ -104,7 +104,7 @@ public static class CustomBuilder {
         RemoveScriptingDefineSymbol("PRODUCTION"); // Someone might accidentally add this
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
-        EditorUserBuildSettings.symlinkLibraries = false;
+        EditorUserBuildSettings.symlinkSources = false;
         EditorUserBuildSettings.androidCreateSymbolsZip = false;
         EditorUserBuildSettings.buildAppBundle = true;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
@@ -127,7 +127,7 @@ public static class CustomBuilder {
         PlayerSettings.Android.useCustomKeystore = false;
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
-        EditorUserBuildSettings.symlinkLibraries = false;
+        EditorUserBuildSettings.symlinkSources = false;
         EditorUserBuildSettings.androidCreateSymbolsZip = false;
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
@@ -148,7 +148,7 @@ public static class CustomBuilder {
         RemoveScriptingDefineSymbol("DEVELOPMENT"); // Someone might accidentally add this
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
-        EditorUserBuildSettings.symlinkLibraries = true;
+        EditorUserBuildSettings.symlinkSources = true;
         SwitchScriptingImplement(ScriptingImplementation.IL2CPP);
         var report = BuildPipeline.BuildPlayer(GetEnabledScenes(), GetXcodeFolder(), BuildTarget.iOS, BuildOptions.None);
         var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
@@ -160,7 +160,7 @@ public static class CustomBuilder {
         RemoveScriptingDefineSymbol("PRODUCTION");
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
-        EditorUserBuildSettings.symlinkLibraries = false;
+        EditorUserBuildSettings.symlinkSources = false;
         SwitchScriptingImplement(ScriptingImplementation.IL2CPP);
         var report =
             BuildPipeline.BuildPlayer(GetEnabledScenes(), GetXcodeFolder(), BuildTarget.iOS, BuildOptions.None);
