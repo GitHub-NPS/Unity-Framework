@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace NPS.Pooling
 {
@@ -34,7 +33,8 @@ namespace NPS.Pooling
             switch (config.Type)
             {
                 case TypePool.Stack:
-                    pool = new ObjectPool<GameObject>(Create, Take, Return, Dispose, config.Check, config.Capacity, config.Max);
+                    pool = new StackPool<GameObject>(Create, Take, Return, Dispose, config.Check, config.Capacity,
+                        config.Max);
                     break;
                 case TypePool.LinkedList:
                     pool = new LinkedPool<GameObject>(Create, Take, Return, Dispose, config.Check, config.Max);
@@ -88,9 +88,9 @@ namespace NPS.Pooling
                 case TypeDestroy.Return:
                     pool.Release(obj);
                     break;
-                    //case TypeDestroy.Dispose:
-                    //    Destroy(obj);
-                    //    break;
+                case TypeDestroy.Dispose:
+                    pool.Destroy(obj);
+                    break;
             }
         }
     }

@@ -127,7 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enable: 1
   time: 1
-  type: 0
+  type: 1
 --- !u!114 &-2381376341547417192
 MonoBehaviour:
   m_ObjectHideFlags: 0
