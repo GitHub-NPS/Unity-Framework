@@ -7,7 +7,12 @@ namespace NPS.Pooling
     {
         public TypePool Type = TypePool.Stack;
         public bool Check = false;
-        public int Capacity = 10;
         public int Max = 20;
+
+        public int Capacity = 10;        
+
+        public bool IsScan = false;
+        public float LifeTime = 30f;
+        public float TimeScan = 10f;
     }
 }

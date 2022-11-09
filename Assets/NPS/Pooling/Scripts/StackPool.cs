@@ -3,45 +3,19 @@ using System.Collections.Generic;
 
 namespace NPS.Pooling
 {
-    public class StackPool<T> : IDisposable, IObjectPool<T> where T : class
+    public class StackPool<T> : AObjectPool<T> where T : class
     {
         internal readonly Stack<T> m_Stack;
-        private readonly Func<T> m_CreateFunc;
-        private readonly Action<T> m_ActionOnGet;
-        private readonly Action<T> m_ActionOnRelease;
-        private readonly Action<T> m_ActionOnDestroy;
-        private readonly int m_MaxSize;
-        internal bool m_CollectionCheck;
 
-        public int CountAll { get; private set; }
+        public override int CountInactive { get => this.m_Stack.Count; set { } }
 
-        public int CountActive => this.CountAll - this.CountInactive;
-
-        public int CountInactive => this.m_Stack.Count;
-
-        public StackPool(
-            Func<T> createFunc,
-            Action<T> actionOnGet = null,
-            Action<T> actionOnRelease = null,
-            Action<T> actionOnDestroy = null,
-            bool collectionCheck = true,
-            int defaultCapacity = 10,
-            int maxSize = 10000)
+        public StackPool(Func<T> createFunc, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int maxSize = 10000,
+            int defaultCapacity = 10) : base(createFunc, actionOnGet, actionOnRelease, actionOnDestroy, collectionCheck, maxSize)
         {
-            if (createFunc == null)
-                throw new ArgumentNullException(nameof(createFunc));
-            if (maxSize <= 0)
-                throw new ArgumentException("Max Size must be greater than 0", nameof(maxSize));
             this.m_Stack = new Stack<T>(defaultCapacity);
-            this.m_CreateFunc = createFunc;
-            this.m_MaxSize = maxSize;
-            this.m_ActionOnGet = actionOnGet;
-            this.m_ActionOnRelease = actionOnRelease;
-            this.m_ActionOnDestroy = actionOnDestroy;
-            this.m_CollectionCheck = collectionCheck;
         }
 
-        public T Get()
+        protected override T iGet()
         {
             T obj;
             if (this.m_Stack.Count == 0)
@@ -52,55 +26,27 @@ namespace NPS.Pooling
             else
                 obj = this.m_Stack.Pop();
 
-            Action<T> actionOnGet = this.m_ActionOnGet;
-            if (actionOnGet != null)
-                actionOnGet(obj);
             return obj;
         }
 
-        public void Release(T element)
+        protected override bool CollectionCheck(T element)
         {
-            if (this.m_CollectionCheck && this.m_Stack.Count > 0 && this.m_Stack.Contains(element))
-                throw new InvalidOperationException(
-                    "Trying to release an object that has already been released to the pool.");
-            Action<T> actionOnRelease = this.m_ActionOnRelease;
-            if (actionOnRelease != null)
-                actionOnRelease(element);
-            if (this.CountInactive < this.m_MaxSize)
-            {
-                this.m_Stack.Push(element);
-            }
-            else
-            {
-                Action<T> actionOnDestroy = this.m_ActionOnDestroy;
-                if (actionOnDestroy != null)
-                    actionOnDestroy(element);
-            }
+            return base.CollectionCheck(element) && this.m_Stack.Contains(element);
         }
 
-        public void Destroy(T element)
+        protected override void iRelease(T element)
         {
-            Action<T> actionOnRelease = this.m_ActionOnRelease;
-            if (actionOnRelease != null)
-                actionOnRelease(element);
-            
-            Action<T> actionOnDestroy = this.m_ActionOnDestroy;
-            if (actionOnDestroy != null)
-                actionOnDestroy(element);
+            this.m_Stack.Push(element);
         }
 
-        public void Clear()
+        public override void Clear()
         {
-            if (this.m_ActionOnDestroy != null)
-            {
-                foreach (T obj in this.m_Stack)
-                    this.m_ActionOnDestroy(obj);
-            }
+            foreach (T obj in this.m_Stack)
+                this.m_ActionOnDestroy(obj);
 
-            this.m_Stack.Clear();
-            this.CountAll = 0;
+            m_Stack.Clear();
+
+            base.Clear();
         }
-
-        public void Dispose() => this.Clear();
     }
 }

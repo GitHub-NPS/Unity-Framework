@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ade3675fca63d6b45b2ce2b5b766db4f, type: 3}
   m_Name: Cube
   m_EditorClassIdentifier: 
+  Type: 0
   Check: 0
   Capacity: 10
-  Max: 5
+  Max: 20
+  IsScan: 1
+  LifeTime: 10
+  TimeScan: 3

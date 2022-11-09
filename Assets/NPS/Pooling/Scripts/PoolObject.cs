@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace NPS.Pooling
@@ -9,6 +11,8 @@ namespace NPS.Pooling
         [SerializeField] private Config config;
 
         private IObjectPool<GameObject> pool;
+        private Dictionary<GameObject, DateTime> scans = new Dictionary<GameObject, DateTime>();
+
         private GameObject prefab;
         private Transform parent;
 
@@ -19,6 +23,7 @@ namespace NPS.Pooling
 
             LoadConfig();
             InitPool();
+            Scan();
         }
 
         private void LoadConfig()
@@ -33,8 +38,8 @@ namespace NPS.Pooling
             switch (config.Type)
             {
                 case TypePool.Stack:
-                    pool = new StackPool<GameObject>(Create, Take, Return, Dispose, config.Check, config.Capacity,
-                        config.Max);
+                    pool = new StackPool<GameObject>(Create, Take, Return, Dispose, config.Check, config.Max,
+                        config.Capacity);
                     break;
                 case TypePool.LinkedList:
                     pool = new LinkedPool<GameObject>(Create, Take, Return, Dispose, config.Check, config.Max);
@@ -72,7 +77,17 @@ namespace NPS.Pooling
             this.prefab = prefab;
             this.parent = parent;
 
-            var obj = pool.Get();
+            GameObject obj = null;
+            while (!obj)
+            {
+                obj = pool.Get();
+            }
+
+            if (config.IsScan)
+            {
+                if (scans.ContainsKey(obj))
+                    scans.Remove(obj);
+            }
 
             obj.transform.localPosition = prefab.transform.localPosition;
             obj.transform.localRotation = prefab.transform.localRotation;
@@ -87,10 +102,45 @@ namespace NPS.Pooling
             {
                 case TypeDestroy.Return:
                     pool.Release(obj);
+
+                    if (config.IsScan)
+                    {
+                        if (!scans.ContainsKey(obj))
+                            scans.Add(obj, DateTime.Now);
+                        else scans[obj] = DateTime.Now;
+                    }
                     break;
                 case TypeDestroy.Dispose:
-                    pool.Destroy(obj);
+                    if (config.IsScan)
+                    {
+                        if (scans.ContainsKey(obj))
+                            scans.Remove(obj);
+                    }
+
+                    pool.Destroy(obj);                    
                     break;
+            }
+        }
+
+        private void Scan()
+        {
+            scans.Clear();
+
+            if (config.IsScan)
+            {
+                InvokeRepeating("iScan", 0, config.TimeScan);
+            }
+        }
+
+        private void iScan()
+        {
+            foreach (var item in scans.Keys.ToList())
+            {
+                if (item && !item.activeSelf && (DateTime.Now - scans[item]).TotalSeconds > config.LifeTime)
+                {
+                    //Debug.Log($"Scan Destroy: {item.name}_{item.GetInstanceID()}");
+                    Release(item, TypeDestroy.Dispose);
+                }
             }
         }
     }
