@@ -1,13 +1,13 @@
-using MEC;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using com.unimob.timer;
 
 public class LockPositionObject : MonoBehaviour
 {
     [SerializeField] private bool enable = false;
-    
-    private CoroutineHandle handle;
+
+    private TickData tick = new TickData();
 
     private void OnEnable()
     {
@@ -16,20 +16,17 @@ public class LockPositionObject : MonoBehaviour
 
     public void LockPosition()
     {
-        handle = Timing.RunCoroutine(_LockPosition());
+        tick.Action = Tick;
+        tick.RegisterTick();
     }
 
     private void OnDisable()
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
+        tick.RemoveTick();
     }
 
-    private IEnumerator<float> _LockPosition()
+    private void Tick()
     {
-        while (true)
-        {
-            this.transform.localPosition = Vector3.zero;
-            yield return Timing.DeltaTime;
-        }
+        this.transform.localPosition = Vector3.zero;
     }
 }

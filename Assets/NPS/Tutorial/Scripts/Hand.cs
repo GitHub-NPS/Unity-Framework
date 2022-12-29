@@ -1,43 +1,49 @@
-using System;
-using MEC;
-using Spine.Unity;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NPS.Math;
+using com.unimob.timer;
 
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public abstract class Hand : MonoBehaviour
     {
-        public abstract class Hand : MonoBehaviour
+        [SerializeField] protected GameObject hand;
+        [SerializeField] private float speed = 2;
+        [SerializeField] private GameObject fx;
+
+        private TickData tick = new TickData();
+
+        public abstract void Set(HandType type);
+
+        private void OnDisable()
         {
-            [SerializeField] protected GameObject hand;
-            [SerializeField] private float speed = 2;
-            [SerializeField] private GameObject fx;
+            tick.RemoveTick();
+        }
 
-            public abstract void Set(HandType type);
+        public void Move(Transform end, Transform start, bool isLoop = false)
+        {
+            fx.SetActive(true);
 
-            public IEnumerator<float> _Move(Transform end, Transform start, bool isLoop = false)
+            tick.Action = () => Tick(end, start, isLoop);
+            tick.RegisterTick();
+        }
+
+        private void Tick(Transform end, Transform start, bool isLoop)
+        {
+            float step = speed * Time.fixedDeltaTime;
+            this.gameObject.transform.position = Vector3.MoveTowards(transform.position, end.position, step);
+
+            if (transform.position.SqrMagnitude(end.position) < 0.001f)
             {
-                fx.SetActive(true);
-
-                while (true)
+                if (isLoop)
                 {
-                    float step = speed * Time.fixedDeltaTime;
-                    this.gameObject.transform.position = Vector3.MoveTowards(transform.position, end.position, step);
-
-                    if (transform.position.SqrMagnitude(end.position) < 0.001f)
-                    {
-                        if (isLoop)
-                        {
-                            fx.SetActive(false);
-                            this.transform.position = start.position;
-                            fx.SetActive(true);
-                        }
-                        else break;
-                    }
-
-                    yield return Timing.WaitForOneFrame;
+                    fx.SetActive(false);
+                    this.transform.position = start.position;
+                    fx.SetActive(true);
+                }
+                else
+                {
+                    tick.RemoveTick();
                 }
             }
         }

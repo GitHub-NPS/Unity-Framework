@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
 
 public class AppManager : MonoSingleton<AppManager>
 {
@@ -14,6 +14,7 @@ public class AppManager : MonoSingleton<AppManager>
     public static LoginManager Login;
     public static FacebookManager Facebook;
     public static ApiManager Api;
+    public static AdjustManager Adjust;
 
     public void Init()
     {
@@ -27,5 +28,6 @@ public class AppManager : MonoSingleton<AppManager>
         LoginManager.S.Init(transform);
         FacebookManager.S.Init(transform);
         ApiManager.S.Init(transform);
+        AdjustManager.S.Init(transform);
     }
 }

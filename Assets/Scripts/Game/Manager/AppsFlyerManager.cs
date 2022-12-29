@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
 
 #if UNITY_APPSFLYER
 using AppsFlyerSDK;
@@ -73,7 +73,8 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
     public void AdImpression(string ad_platform, string ad_source, string ad_unit_name, string ad_format, string ad_revenue)
     {
 #if UNITY_APPSFLYER
-        if (m_IsInitialized) {
+        if (m_IsInitialized)
+        {
             var eventParams = new Dictionary<string, string>();
             eventParams.Add("af_platform", ad_platform);
             eventParams.Add("af_source", ad_source);
@@ -81,11 +82,16 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
             eventParams.Add("af_currency", "USD");
             eventParams.Add("af_value", ad_revenue);
 
-            if (ad_unit_name.Equals("rewarded_video")) {
+            if (ad_unit_name.Equals("rewarded_video"))
+            {
                 AppsFlyer.sendEvent("af_impression_rewarded", eventParams);
-            } else if (ad_unit_name.Equals("interstitial")) {
+            }
+            else if (ad_unit_name.Equals("interstitial"))
+            {
                 AppsFlyer.sendEvent("af_impression_interstitial", eventParams);
-            } else if (ad_unit_name.Equals("banner")) {
+            }
+            else if (ad_unit_name.Equals("banner"))
+            {
                 AppsFlyer.sendEvent("af_impression_banner", eventParams);
             }
         }
@@ -154,29 +160,30 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 #endif
     }
 
-//     public void UninstallTracking(string token)
-//     {
-// #if UNITY_APPSFLYER
-// #if UNITY_ANDROID
-//         //AppsFlyerAndroid.updateServerUninstallToken(token);
-// #endif
-// #endif
-//     }
-//
-//     public void AndroidRevenueTracking(string signature, string purchaseData, string price, string currency)
-//     {
-// #if UNITY_APPSFLYER
-// #if UNITY_ANDROID
-//         AppsFlyerAndroid.validateAndSendInAppPurchase(androidPublicKey, signature, purchaseData, price, currency, null, this);
-// #endif
-// #endif
-//     }
+    public void UninstallTracking(string token)
+    {
+#if UNITY_APPSFLYER
+#if UNITY_ANDROID
+        if (AppsFlyer.instance != null) (AppsFlyer.instance as IAppsFlyerAndroidBridge).updateServerUninstallToken(token);
+
+#endif
+#endif
+    }
+
+    public void AndroidRevenueTracking(string signature, string purchaseData, string price, string currency)
+    {
+#if UNITY_APPSFLYER
+#if UNITY_ANDROID
+        if (AppsFlyer.instance != null) (AppsFlyer.instance as IAppsFlyerAndroidBridge).validateAndSendInAppPurchase(androidPublicKey, signature, purchaseData, price, currency, null, this);
+#endif
+#endif
+    }
 
     public void iOSRevenueTracking(string prodId, string price, string currency, string transactionId)
     {
 #if UNITY_APPSFLYER
 #if UNITY_IOS
-        AppsFlyeriOS.validateAndSendInAppPurchase(prodId, price, currency, transactionId, null, this);
+        if (AppsFlyer.instance != null) (AppsFlyer.instance as IAppsFlyerIOSBridge).validateAndSendInAppPurchase(prodId, price, currency, transactionId, null, this);
 #endif
 #endif
     }

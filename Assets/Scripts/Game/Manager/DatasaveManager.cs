@@ -1,13 +1,14 @@
 using BayatGames.SaveGameFree;
 using BayatGames.SaveGameFree.Serializers;
-using MEC;
-using Sirenix.OdinInspector;
-using System.Collections.Generic;
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
+using NPS.Pattern.Observer;
+using System.Collections.Generic;
 
 public class DatasaveManager : MonoSingleton<DatasaveManager>
 {
+    private List<ADataSave> saves = new List<ADataSave>();
+
     #region General
     public GeneralSave General
     {
@@ -48,6 +49,16 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
     [SerializeField] private TutorialSave tutorial;
     #endregion
 
+    #region Time
+    public TimeSave Time
+    {
+        get => time;
+        set { time = value; }
+    }
+
+    [SerializeField] private TimeSave time;
+    #endregion
+
     private bool encode = true;
     private string password = "NPS";
 
@@ -59,47 +70,77 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         SaveGame.Encode = encode;
         SaveGame.EncodePassword = password;
         SaveGame.Serializer = new SaveGameJsonSerializer();
-        Load();
+        LoadData();
         FixData();
 
         this.PostEvent(EventID.LoadSuccess);
     }
 
-    private void FixData()
+    public void FixData()
     {
-        remoteConfig.Fix();
-        general.Fix();        
-        user.Fix();
-        tutorial.Fix();
+        foreach (var save in saves)
+            save.Fix();
+
+#if DEVELOPMENT
+        if ((UnbiasedTime.UtcNow - Time.LastTimeOut).TotalMinutes > 30)
+            NextDay();
+#else
+        if ((UnbiasedTime.UtcNow - Time.LastTimeOut).Days != 0)
+            NextDay();
+#endif
+    }
+
+    private void NextDay()
+    {
+        Time.SetLastTimeOut();
     }
 
     private void OnApplicationPause(bool pause)
     {
-        Debug.Log("Pause: " + pause);
-        if (pause) Save();
+        if (pause)
+        {
+            Time.SetLastTimeOut();
+            General.Save();
+        }
     }
 
     private void OnApplicationQuit()
     {
-        general.SetLastTimeOut();
-
-        Debug.Log("Quit");
-        Save();
+        SaveData();
     }
 
-    private void Save()
+    private void SaveData()
     {
-        remoteConfig.Save();
-        general.Save();
-        tutorial.Save();
-        user.Save();
+        Time.SetLastTimeOut();
+
+        foreach (var save in saves)
+            save.Save();
     }
 
-    private void Load()
+    public void LoadData()
     {
-        general = SaveGame.Load("General", new GeneralSave());
-        remoteConfig = SaveGame.Load("RemoteConfig", new RemoteConfigSave());
-        tutorial = SaveGame.Load("Tutorial", new TutorialSave());
-        user = SaveGame.Load("User", new UserSave());
+        saves.Clear();
+
+        remoteConfig = LoadData(new RemoteConfigSave("RemoteConfig"));
+
+        general = LoadData(new GeneralSave("General"));
+
+        time = LoadData(new TimeSave("Time"));
+
+        tutorial = LoadData(new TutorialSave("Tutorial"));
+
+        user = LoadData(new UserSave("User"));
+    }
+
+    private T LoadData<T>(T def) where T : ADataSave
+    {
+        var rs = SaveGame.Load(def.Key, def);
+        saves.Add(rs);
+        return rs;
+    }
+
+    public void ClearData()
+    {
+        SaveGame.Clear();
     }
 }

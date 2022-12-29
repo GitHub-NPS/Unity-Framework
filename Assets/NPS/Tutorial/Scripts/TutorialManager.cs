@@ -19,13 +19,13 @@ public class TutorialManager : Manager
         switch (tut)
         {
             case 1:
-                return false;
+                return true;
         }
 
         return false;
     }
 
-    protected override bool Handler(int tut, int step)
+    public override bool Handler(int tut, int step)
     {
         switch (tut)
         {
@@ -33,9 +33,9 @@ public class TutorialManager : Manager
                 {
                     switch (step)
                     {
-                        case 3:
-                            //UI.HideHand();
-                            //Complete(save.CurTut);
+                        case 1:
+                            UI.HideHand();
+                            Complete(save.CurTut);
                             return true;
                     }
                 }

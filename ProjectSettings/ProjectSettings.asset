@@ -675,7 +675,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
-    Android: TextMeshPro;ODIN_INSPECTOR;ODIN_INSPECTOR_3
+    Android: TextMeshPro;ODIN_INSPECTOR;ODIN_INSPECTOR_3;DEVELOPMENT
     EmbeddedLinux: TextMeshPro
     GameCoreXboxOne: TextMeshPro
     LinuxHeadlessSimulation: TextMeshPro

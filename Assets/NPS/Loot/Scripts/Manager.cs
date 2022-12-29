@@ -1,45 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
 
-namespace NPS
+namespace NPS.Loot
 {
-    namespace Loot
+    public class Manager : MonoSingleton<LootManager>
     {
-        public class Manager : MonoSingleton<LootManager>
+        protected static UILoot ui;
+        public static UILoot UI
         {
-            protected static UILoot ui;
-            public static UILoot UI
+            get
             {
-                get
-                {
-                    if (!ui) ui = FindObjectOfType<UILoot>();
-                    return ui;
-                }
+                if (!ui) ui = FindObjectOfType<UILoot>();
+                return ui;
+            }
+        }
+
+        public void Loot(List<LootData> loots, bool isUI = false)
+        {
+            foreach (var item in loots)
+            {
+                Loot(item);
             }
 
-            public void Loot(List<LootData> loots, bool isUI = false)
+            DataManager.Save.User.Save();
+
+            if (isUI) UI.Show(loots);
+        }
+
+        public void Loot(LootData loot)
+        {
+            switch (loot.Type)
             {
-                foreach (var item in loots)
-                {
-                    Loot(item);
-                }
-
-                DataManager.Save.User.Save();
-
-                if (isUI) UI.Show(loots);
-            }
-
-            public void Loot(LootData loot)
-            {
-                switch (loot.Type)
-                {
-                    case LootType.Currency:
-                        var currency = loot.Data as CurrencyData;
-                        DataManager.Save.User.IncreaseCurrency(currency);
-                        break;
-                }
+                case LootType.Currency:
+                    var currency = loot.Data as CurrencyData;
+                    DataManager.Save.User.IncreaseCurrency(currency);
+                    break;
             }
         }
     }

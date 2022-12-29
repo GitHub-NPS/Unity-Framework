@@ -1,56 +1,83 @@
+using NPS.Pattern.Observer;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 using UnityEngine;
 
-namespace NPS
+namespace NPS.Loot
 {
-    namespace Loot
+    public class UILoot : MonoBehaviour
     {
-        public class UILoot : MonoBehaviour
+        [SerializeField] private GameObject content;
+
+        [SerializeField] private Transform lootContent;
+        [SerializeField] private List<ItemData> lstLootItem;
+
+        private Dictionary<LootType, ItemData> dicLootItem = new Dictionary<LootType, ItemData>();
+        private List<UIItem> items = new List<UIItem>();
+
+        private void Awake()
         {
-            [SerializeField] private GameObject content;
-
-            [SerializeField] private Transform lootContent;
-            [SerializeField] private List<ItemData> lstLootItem;
-            private Dictionary<LootType, ItemData> dicLootItem = new Dictionary<LootType, ItemData>();
-            private List<UIItem> items = new List<UIItem>();
-
-            private void Awake()
+            foreach (var item in lstLootItem)
             {
-                foreach (var item in lstLootItem)
+                if (!dicLootItem.ContainsKey(item.Type)) dicLootItem.Add(item.Type, item);
+            }
+        }
+
+        public void Show(List<LootData> rewards)
+        {
+            foreach (var item in rewards)
+            {
+                if (dicLootItem.ContainsKey(item.Type))
                 {
-                    if (!dicLootItem.ContainsKey(item.Type)) dicLootItem.Add(item.Type, item);
+                    var obj = Pooling.Manager.S.Spawn(dicLootItem[item.Type].Item, lootContent);
+                    obj.Set(item.Data);
+                    obj.Light(true);
+
+                    items.Add(obj);
                 }
             }
 
-            public void Show(List<LootData> rewards)
+            content.SetActive(true);
+        }
+
+        public void Continue()
+        {
+            foreach (var item in items)
             {
-                foreach (var item in rewards)
-                {
-                    if (dicLootItem.ContainsKey(item.Type))
-                    {
-                        var obj = NPS.Pooling.Manager.S.Spawn(dicLootItem[item.Type].Item, lootContent);
-                        obj.Set(item.Data);
-                        obj.Light(true);
+                Pooling.Manager.S.Despawn(item.gameObject);
+            }
+            items.Clear();
 
-                        items.Add(obj);
-                    }
-                }
+            content.SetActive(false);
+        }
 
-                content.SetActive(true);
+        public void Loot(List<LootData> rewards)
+        {
+            var contain = new List<LootType>();
+
+            var loots = rewards.Merge();
+            for (int i = 0; i < loots.Count; i++)
+            {
+                Loot(loots[i]);
+
+                if (!contain.Contains(loots[i].Type))
+                    contain.Add(loots[i].Type);
             }
 
-            public void Continue()
-            {
-                foreach (var item in items)
-                {
-                    NPS.Pooling.Manager.S.Despawn(item.gameObject);
-                }
-                items.Clear();
+            // Save
 
-                content.SetActive(false);
+            foreach (var item in contain)
+                this.PostEvent(EventID.LootReward, item);
+        }
+
+        public void Loot(LootData reward)
+        {
+            switch (reward.Type)
+            {
+                case LootType.Currency:
+                    //MainGameScene.S.Fix.Loot(reward.Data as CurrencyData, true, true);
+                    break;
             }
         }
     }

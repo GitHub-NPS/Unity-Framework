@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using NPS;
+using com.unimob.pattern.singleton;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -180,13 +180,18 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
             var product = m_StoreController.products.WithID(productId);
             if (product != null && product.availableToPurchase)
             {
-                //return product.metadata.isoCurrencyCode;
+                var isoCurrencyCode = product.metadata.isoCurrencyCode;
+                if (CurrencyTools.TryGetCurrencySymbol(isoCurrencyCode, out var isoCurrencyCodeSymbol))
+                {
+                    return isoCurrencyCodeSymbol;
+                }
 
-                string price = product.metadata.localizedPriceString;
-                string regex = @"[^0-9\.,]";
-                var group = Regex.Match(price, regex).Groups;
-                if (group.Count > 0) return group[0].Value;
-                else return "$";
+                return isoCurrencyCode;
+                // string price = product.metadata.localizedPriceString;
+                // string regex = @"[^0-9\.,]";
+                // var group = Regex.Match(price, regex).Groups;
+                // if (group.Count > 0) return group[0].Value;
+                // else return "$";
             }
             else
             {
@@ -217,6 +222,7 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
 
         var receipt = e.purchasedProduct.receipt;
         var receiptToJson = (Dictionary<string, object>)AFMiniJSON.Json.Deserialize(receipt);
+        var transactionId = (string)receiptToJson["TransactionID"];
 
         for (int i = 0; i < m_Products.Count; i++)
         {
@@ -230,8 +236,7 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
                         m_Products[i].Active = true;
                     }
 
-#if UNITY_IOS
-                    var transactionId = (string) receiptToJson["TransactionID"];
+#if UNITY_IOS                    
                     AppManager.AppsFlyer.iOSRevenueTracking(prodId, decimal.Multiply(price, 0.63m).ToString(), currency, transactionId);
 #elif UNITY_ANDROID
                     var payloadToJson = (Dictionary<string, object>)AFMiniJSON.Json.Deserialize((string)receiptToJson["Payload"]);
@@ -239,7 +244,7 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
                     var signature = (string)payloadToJson["signature"];
                     AppManager.AppsFlyer.AndroidRevenueTracking(signature, purchaseData, decimal.Multiply(price, 0.63m).ToString(), currency);
 #endif
-
+                    AppManager.Adjust.RevenueTracking(price, currency, transactionId);
 #if APP_METRICA
                     YandexAppMetricaReceipt yaReceipt = new YandexAppMetricaReceipt();
                     if (receipt != null)

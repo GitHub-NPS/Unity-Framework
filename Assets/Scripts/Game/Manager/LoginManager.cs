@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using NPS;
+using com.unimob.pattern.singleton;
 
 #if UNITY_GG_SIGNIN
 using Google;

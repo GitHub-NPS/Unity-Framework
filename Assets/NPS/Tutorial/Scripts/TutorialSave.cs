@@ -1,29 +1,23 @@
-using BayatGames.SaveGameFree;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class TutorialSave : IDataSave
+public class TutorialSave : ADataSave
 {
-    private string key = "Tutorial";
-
     public int CurTut = 0;
     public int CurStep = 0;
 
     public List<int> Complete = new List<int>();
 
-    public TutorialSave()
+    public TutorialSave(string key) : base(key)
     {
+
+    }
+
+    public override void Fix()
+    {
+        base.Fix();
+
         CurTut = 0;
         CurStep = 0;
-    }
-
-    public void Fix()
-    {
-
-    }
-
-    public void Save()
-    {
-        SaveGame.Save(key, this);
     }
 }

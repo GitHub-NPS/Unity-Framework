@@ -1,34 +1,13 @@
 using System;
-using BayatGames.SaveGameFree;
-using NPS;
+using System.Collections.Generic;
+using NPS.Pattern.Observer;
 
 [System.Serializable]
-public class GeneralSave: IDataSave
+public class GeneralSave : ADataSave
 {
-    private string key = "General";
-
-    public void Fix()
+    public GeneralSave(string key) : base(key)
     {
 
-    }
-
-    public void Save()
-    {
-        SaveGame.Save(key, this);
-    }
-
-    public DateTime LastTimeOut = DateTime.UtcNow;
-	
-    public TimeSpan TimeOut
-    {
-        get
-        {
-            if ((UnbiasedTime.UtcNow - LastTimeOut).TotalMinutes <= 0)
-            {
-                return new TimeSpan(0, 0, 0, 0);
-            }
-            return UnbiasedTime.UtcNow - LastTimeOut;
-        }
     }
 
     public float Sound = 1.0f;
@@ -38,11 +17,6 @@ public class GeneralSave: IDataSave
 
     public int CountInterAds = 0;
     public int CountRewardAds = 0;
-
-    public void SetLastTimeOut()
-    {
-        LastTimeOut = UnbiasedTime.S ? UnbiasedTime.UtcNow : DateTime.Now;
-    }
 
     public void SetSound(float value)
     {

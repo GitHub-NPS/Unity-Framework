@@ -1,14 +1,12 @@
-using MEC;
+using com.unimob.mec;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using NPS;
 
-public class UIPause : MonoBehaviour
+public class UIPause : UIView
 {
-    [SerializeField] private GameObject content;    
-
     [SerializeField] private GameObject iconMusicOn;
     [SerializeField] private GameObject iconMusicOff;
     [SerializeField] private GameObject btnMusicOn;
@@ -20,18 +18,13 @@ public class UIPause : MonoBehaviour
     [SerializeField] private GameObject btnSoundOff;
 
     private float oldTimeScale = 1f;
+    private GeneralSave general;
 
-    private GeneralSave general = new GeneralSave();
-
-    private void Awake()
+    protected override void Init()
     {
+        base.Init();
+
         general = DataManager.Save.General;
-    }
-
-    private void Start()
-    {
-        UpdateUIMusic();
-        UpdateUISound();
     }
 
     private void UpdateUISound()
@@ -62,36 +55,34 @@ public class UIPause : MonoBehaviour
         UpdateUIMusic();
     }
 
-    public void Show()
+    public override void Show(object obj = null)
     {
+        base.Show(obj);
+
         UpdateUIMusic();
         UpdateUISound();
 
-        content.SetActive(true);
-
         oldTimeScale = Time.timeScale;
         Time.timeScale = 0;
-
-        MainGameManager.S.PauseCoroutines();
     }
 
-    public void Hide()
+    public override void Hide()
     {
-        content.SetActive(false);
+        base.Hide();
 
         Time.timeScale = oldTimeScale;
-        MainGameManager.S.ResumeCoroutines();
     }
 
     public void Home()
     {
         this.gameObject.SetActive(false);
 
-        MainGameScene.S.Confirm.OnShow(ConfirmType.YesNo, "Title Confirm Home", "Des Confirm Home", true, () =>
+        MainGameScene.S.Show<UIConfirm>();
+        MainGameScene.S.View<UIConfirm>().Set(ConfirmType.YesNo, "Title Confirm Home", "Des Confirm Home", true, () =>
         {
             Hide();
-        }, () => 
-        { 
+        }, () =>
+        {
             this.gameObject.SetActive(true);
         });
     }
@@ -100,12 +91,13 @@ public class UIPause : MonoBehaviour
     {
         this.gameObject.SetActive(false);
 
-        MainGameScene.S.Confirm.OnShow(ConfirmType.YesNo, "Title Confirm Replay", "Des Confirm Replay", true, () =>
+        MainGameScene.S.Show<UIConfirm>();
+        MainGameScene.S.View<UIConfirm>().Set(ConfirmType.YesNo, "Title Confirm Replay", "Des Confirm Replay", true, () =>
         {
             Hide();
         }, () =>
         {
             this.gameObject.SetActive(true);
         });
-    }    
+    }
 }

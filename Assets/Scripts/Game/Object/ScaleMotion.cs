@@ -8,10 +8,10 @@ public class ScaleMotion : MonoBehaviour
     [SerializeField] private CheckType check;
     [SerializeField] private int count = 1;
 
-    [SerializeField] private Vector3 start = new Vector3(1, 1, 1);
-    [SerializeField] private Vector3 finish = new Vector3(1.2f, 1.2f, 1f);
+    [SerializeField] private Vector3 start = new Vector3(0, 0, 0);
+    [SerializeField] private Vector3 finish = new Vector3(1f, 1f, 1f);
 
-    [SerializeField] private float time = 0.2f;
+    [SerializeField] private float time = 0.1f;
 
     private int c = 0;
     private Tween tw = default;

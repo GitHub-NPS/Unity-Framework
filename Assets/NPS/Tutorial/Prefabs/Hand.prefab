@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2500416172715543842}
   - component: {fileID: 6830701510724742841}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60,7 +60,6 @@ GameObject:
   - component: {fileID: 4347137542488477799}
   - component: {fileID: 2619055062443474784}
   - component: {fileID: 4576756131971858501}
-  - component: {fileID: 5126757736416050780}
   m_Layer: 0
   m_Name: Spine GameObject (Hand_Ctrl)
   m_TagString: Untagged
@@ -130,7 +129,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &4576756131971858501
 MonoBehaviour:
@@ -166,20 +165,9 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
-  _animationName: 
+  _animationName: idle
   loop: 1
   timeScale: 1
---- !u!210 &5126757736416050780
-SortingGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6667580068522719514}
-  m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 203
 --- !u!1001 &5760580979171122173
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -189,7 +177,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4795746891706905288, guid: 60bea37d57a3f7b4388943da2357d3ba, type: 3}
       propertyPath: m_Layer
-      value: 5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4795746891706905290, guid: 60bea37d57a3f7b4388943da2357d3ba, type: 3}
       propertyPath: m_SortingOrder
@@ -201,7 +189,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6902073607554099481, guid: 60bea37d57a3f7b4388943da2357d3ba, type: 3}
       propertyPath: m_Layer
-      value: 5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6902073607554099487, guid: 60bea37d57a3f7b4388943da2357d3ba, type: 3}
       propertyPath: m_SortingOrder
@@ -217,7 +205,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6902073609115926280, guid: 60bea37d57a3f7b4388943da2357d3ba, type: 3}
       propertyPath: m_Layer
-      value: 5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6902073609115926280, guid: 60bea37d57a3f7b4388943da2357d3ba, type: 3}
       propertyPath: m_IsActive

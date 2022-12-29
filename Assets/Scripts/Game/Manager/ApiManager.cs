@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
 using UnityEngine.Networking;
 using System;
 using Newtonsoft.Json;

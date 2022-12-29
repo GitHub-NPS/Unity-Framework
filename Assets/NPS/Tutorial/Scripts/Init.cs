@@ -3,39 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public class Init : MonoBehaviour
     {
-        public class Init : MonoBehaviour
-        {
-            [SerializeField] private List<StartData> data;
+        [SerializeField] private List<StartData> data;
 
-            private void Awake()
+        private void Awake()
+        {
+            if (data.Count > 0)
             {
-                if (data.Count > 0)
+                foreach (var item in data)
                 {
-                    foreach (var item in data)
+                    Manager.S.RegisterInit(item.Tut, () =>
                     {
-                        Manager.S.RegisterInit(item.Tut, () =>
-                        {
-                            item.Event?.Invoke();
-                        });
-                    }
+                        item.Event?.Invoke();
+                    });
                 }
             }
-
-            private void Start()
-            {
-
-            }
         }
 
-        [System.Serializable]
-        class StartData
+        private void Start()
         {
-            public int Tut;
-            public UnityEvent Event;
+
         }
+    }
+
+    [System.Serializable]
+    class StartData
+    {
+        public int Tut;
+        public UnityEvent Event;
     }
 }

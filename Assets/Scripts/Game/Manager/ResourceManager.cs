@@ -19,6 +19,8 @@ public class ResourceManager : MonoBehaviour
     [SerializeField] private List<SpriteAtlas> Atlas = new List<SpriteAtlas>();
     private Dictionary<string, SpriteAtlas> dicAtlas = new Dictionary<string, SpriteAtlas>();
 
+    private Dictionary<string, GameObject> dicGameObject = new Dictionary<string, GameObject>();
+
 #if UNITY_EDITOR
     private static List<SpriteAtlas> sAtlas = new List<SpriteAtlas>();
     private void OnValidate()
@@ -43,12 +45,11 @@ public class ResourceManager : MonoBehaviour
 
     private void Start()
     {
-
     }
 
     public AudioClip LoadSound(string name, bool save = true)
     {
-        return Load("Audios/Sound/" + name, dicSound, save);
+        return Load($"Audios/Sound/{name}", dicSound, save);
     }
 
     public void ClearSound()
@@ -58,19 +59,19 @@ public class ResourceManager : MonoBehaviour
 
     public AudioClip LoadMusic(string name, bool save = true)
     {
-        return Load("Audios/Music/" + name, dicMusic, save);
+        return Load($"Audios/Music/{name}", dicMusic, save);
     }
 
     public Sprite LoadSprite(string path, bool save = true)
     {
-        return Load("Textures/" + path, dicSP, save);
+        return Load($"Textures/{path}", dicSP, save);
     }
 
     public Sprite LoadSprite(string atlas, string name, bool save = true, bool check = true)
     {
         if (save)
         {
-            string path = atlas + "/" + name;
+            string path = $"{atlas}/{name}";
 
             if (!dicSP.ContainsKey(path))
             {
@@ -93,17 +94,22 @@ public class ResourceManager : MonoBehaviour
 
     public SkeletonAnimation LoadAnimation(string path, bool save = true)
     {
-        return Load("Animations/" + path, dicAnimation, save);
+        return Load($"Animations/{path}", dicAnimation, save);
     }
 
     public SkeletonGraphic LoadGraphic(string path, bool save = true)
     {
-        return Load("Graphics/" + path, dicGraphic, save);
+        return Load($"Graphics/{path}", dicGraphic, save);
     }
 
     public SkeletonDataAsset LoadSkeleton(string path, bool save = true)
     {
-        return Load("Skeletons/" + path, dicSkeleton, save);
+        return Load($"Skeletons/{path}", dicSkeleton, save);
+    }    
+
+    public GameObject LoadGameObject(string path, bool save = true)
+    {
+        return Load(path, dicGameObject, save);
     }
 
     private T Load<T>(string path, Dictionary<string, T> dic, bool save = true, bool check = true) where T : Object
@@ -127,5 +133,21 @@ public class ResourceManager : MonoBehaviour
         }
     }
 
-    // Custom
+    #region Customer
+
+    private Dictionary<string, UIView> dicView = new Dictionary<string, UIView>();
+
+    public UIView LoadView(string path)
+    {
+        return Load($"Views/{path}", dicView, false);
+    }
+
+    private Dictionary<string, UIIconEventItem> dicEvent = new Dictionary<string, UIIconEventItem>();
+
+    public UIIconEventItem LoadEvent(string path)
+    {
+        return Load($"Events/{path}", dicEvent, false);
+    }
+
+    #endregion
 }

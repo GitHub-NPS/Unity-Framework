@@ -1,8 +1,5 @@
 using DG.Tweening;
-using NPS;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using NPS.Math;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,7 +17,7 @@ public class DOMoveObject : MonoBehaviour
             this.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
 
-        float dis = MathHelper.SqrMagnitude(from, to);
+        float dis = from.SqrMagnitude(to);
         dis = Mathf.Sqrt(dis);
         this.transform.DOMove(to, dis / speed).SetEase(Ease.Linear).OnComplete(Complete);
     }

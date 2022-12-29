@@ -1,11 +1,8 @@
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public enum HandType
     {
-        public enum HandType
-        {
-            Click,
-            Move
-        }
+        Click,
+        Move
     }
 }

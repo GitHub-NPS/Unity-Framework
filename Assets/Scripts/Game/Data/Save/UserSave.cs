@@ -1,15 +1,12 @@
 using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
-using NPS;
 using UnityEngine;
-using BayatGames.SaveGameFree;
+using NPS.Pattern.Observer;
 
 [System.Serializable]
-public class UserSave: IDataSave
+public class UserSave : ADataSave
 {
-    private string key = "User";
-
     [ShowInInspector] public Dictionary<CurrencyType, double> Currency = new Dictionary<CurrencyType, double>();
 
     public string id = "";
@@ -17,19 +14,28 @@ public class UserSave: IDataSave
     public string avatar = "";
     public int rank = -1;
 
-    public UserSave()
+    public List<int> Noel = new List<int>();
+
+    public void Clear()
+    {
+        Currency[CurrencyType.Coin] = -1;
+    }
+
+    public UserSave(string key) : base(key)
     {
         foreach (CurrencyType currency in (CurrencyType[])Enum.GetValues(typeof(CurrencyType)))
         {
             Currency.Add(currency, 0);
         }
 
-        Currency[CurrencyType.Coin] = Constant.InitCoin;
-        Currency[CurrencyType.Diamond] = Constant.InitDiamond;
+        Currency[CurrencyType.Coin] = -1;
+        Currency[CurrencyType.Diamond] = 0;
     }
 
-    public void Fix()
+    public override void Fix()
     {
+        base.Fix();
+
         foreach (CurrencyType currency in (CurrencyType[])Enum.GetValues(typeof(CurrencyType)))
         {
             if (!Currency.ContainsKey(currency))
@@ -37,9 +43,18 @@ public class UserSave: IDataSave
         }
     }
 
-    public void Save()
+    public void SetCurrency(CurrencyData currency)
     {
-        SaveGame.Save(key, this);
+        SetCurrency(currency.Type, currency.Value);
+    }
+
+    public void SetCurrency(CurrencyType type, double value)
+    {
+        value = value >= 1000 ? value : Mathf.CeilToInt((float)value);
+        value = value < 0 ? 0 : value;
+        Currency[type] = value;
+
+        Observer.S?.PostEvent(EventID.ChangeCurrency, type);
     }
 
     public void IncreaseCurrency(CurrencyData currency)
@@ -54,13 +69,15 @@ public class UserSave: IDataSave
         Observer.S?.PostEvent(EventID.ChangeCurrency, type);
     }
 
-    public void SubtractCurrency(CurrencyData currency)
+    public void DecreaseCurrency(CurrencyData currency)
     {
-        SubtractCurrency(currency.Type, currency.Value);
+        DecreaseCurrency(currency.Type, currency.Value);
     }
 
-    public void SubtractCurrency(CurrencyType type, double value)
+    public void DecreaseCurrency(CurrencyType type, double value)
     {
+        value = value >= 1000 ? value : Mathf.CeilToInt((float)value);
+
         Currency[type] = Currency[type] >= value ? Currency[type] - value : 0;
 
         Observer.S?.PostEvent(EventID.ChangeCurrency, type);

@@ -1,4 +1,4 @@
-using MEC;
+using com.unimob.timer;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +9,7 @@ public class MoveForwardObject : MonoBehaviour
     [SerializeField] private float speed = 10f;
     [SerializeField] private float angle = 0;
 
-    private CoroutineHandle handle;
+    private TickData tick = new TickData();
 
     private void OnEnable()
     {
@@ -31,27 +31,22 @@ public class MoveForwardObject : MonoBehaviour
 
     public void Move()
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
-        handle = Timing.RunCoroutine(_Move(speed));
+        tick.Action = Tick;
+        tick.RegisterTick();
+    }
+
+    private void Tick()
+    {
+        transform.Translate(Vector3.right * speed * Time.deltaTime);
     }
 
     public void Stop()
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
-        handle = default;
+        tick.RemoveTick();
     }
 
     private void OnDisable()
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
-    }
-
-    private IEnumerator<float> _Move(float speed)
-    {
-        while (true)
-        {
-            transform.Translate(Vector3.right * speed * Timing.DeltaTime);
-            yield return Timing.DeltaTime;
-        }
+        tick.RemoveTick();
     }
 }

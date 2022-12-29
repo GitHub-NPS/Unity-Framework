@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using MEC;
+using com.unimob.mec;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UILoading : MonoBehaviour
+public class UILoading : UIView
 {
-    [SerializeField] private GameObject content;
     [SerializeField] private TextMeshProUGUI txtVersion;
     [SerializeField] private GameObject btnTap2Play;
     [SerializeField] private Image loadingImg;
@@ -16,29 +15,27 @@ public class UILoading : MonoBehaviour
 
     private CoroutineHandle handle;
     private float time = 1.5f;
-    private Action loadComplete;
+    private Action callback;
     private Action tap2Continue;
 
     private float t = 0;
 
-    public void Start()
+    protected override void Init()
     {
+        base.Init();
+
         txtVersion.text = "Version: " + Application.version;
     }
 
     public void Loading(float time, Action callback = null, bool reset = true)
     {
         this.time = time;
-        this.loadComplete = callback;
+        this.callback = callback;
 
         if (reset) Reset();
 
-        //GC.Collect();
-
         if (handle.IsValid) Timing.KillCoroutines(handle);
         handle = Timing.RunCoroutine(_Loading(), Segment.RealtimeUpdate);
-
-        content.SetActive(true);
     }
 
     private void Reset()
@@ -58,11 +55,11 @@ public class UILoading : MonoBehaviour
             loadingImg.fillAmount = t / time;
             if (t >= time) break;
 
-            yield return Timing.DeltaTime;
+            yield return Timing.WaitForOneFrame;
         }
 
         loadingImg.fillAmount = 1f;
-        loadComplete?.Invoke();
+        callback?.Invoke();
 
         yield break;
     }
@@ -79,10 +76,5 @@ public class UILoading : MonoBehaviour
         btnTap2Play.SetActive(true);
         loadingBar.SetActive(false);
         txtLoading.gameObject.SetActive(false);
-    }
-
-    public void Hide()
-    {
-        content.SetActive(false);
     }
 }

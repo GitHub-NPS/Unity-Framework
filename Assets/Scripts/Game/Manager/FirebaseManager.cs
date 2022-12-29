@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
-using NPS;
+using com.unimob.pattern.singleton;
+using NPS.Pattern.Observer;
 
 #if UNITY_FIREBASE
 using Firebase;
@@ -100,7 +101,8 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
     }
 #endif
 
-    public void AdImpression(string ad_platform, string ad_source, string ad_unit_name, string ad_format, string ad_revenue)
+    public void AdImpression(string ad_platform, string ad_source, string ad_unit_name, string ad_format,
+        string ad_revenue)
     {
 #if UNITY_FIREBASE
         if (IsAnalytics) {
@@ -146,20 +148,6 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
             {
                 Firebase.Analytics.FirebaseAnalytics.LogEvent("ad_impression_banner", arrParams);
             }
-        }
-#endif
-    }
-
-    public void OnDemoHandler(params object[] data)
-    {
-        var id = (string)data[0];
-#if UNITY_FIREBASE
-        if (IsAnalytics)
-        {
-            Firebase.Analytics.Parameter[] arrParams = {
-                new Firebase.Analytics.Parameter("id", id)
-            };
-            Firebase.Analytics.FirebaseAnalytics.LogEvent("demo", arrParams);
         }
 #endif
     }

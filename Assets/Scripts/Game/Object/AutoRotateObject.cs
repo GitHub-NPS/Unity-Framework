@@ -1,4 +1,4 @@
-using MEC;
+using com.unimob.timer;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +7,8 @@ public class AutoRotateObject : MonoBehaviour
 {
     [SerializeField] private bool enable = false;
     [SerializeField] private float speed = 10f;
-    
-    private CoroutineHandle handle;
+
+    private TickData tick = new TickData();
     private Quaternion origin;
 
     private void Awake()
@@ -28,24 +28,19 @@ public class AutoRotateObject : MonoBehaviour
 
     public void AutoRotate()
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
-        handle = Timing.RunCoroutine(_AutoRotate());
+        tick.Action = Tick;
+        tick.RegisterTick();
     }
 
     private void OnDisable()
     {
+        tick.RemoveTick();
         this.transform.localRotation = origin;
-        if (handle.IsValid) Timing.KillCoroutines(handle);
     }
 
-    private IEnumerator<float> _AutoRotate()
+    private void Tick()
     {
-        while (true)
-        {
-            float v = speed * Timing.DeltaTime * -200;
-            this.transform.Rotate(new Vector3() { z = v });
-
-            yield return Timing.DeltaTime;
-        }
+        float v = speed * Time.deltaTime * -200;
+        this.transform.Rotate(new Vector3() { z = v });
     }
 }

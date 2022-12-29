@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using NPS;
+using com.unimob.pattern.singleton;
 
 #if UNITY_APPSFLYER
 using AppsFlyerSDK;
@@ -557,6 +557,10 @@ public class AdsManager : MonoSingleton<AdsManager>
 #if UNITY_APPSFLYER
             AppManager.AppsFlyer.AdImpression("ironSource", impressionData.adNetwork, impressionData.adUnit, impressionData.instanceName,
                 impressionData.revenue.ToString());
+#endif
+
+#if UNITY_IRONSOURCE
+            AppManager.Adjust.AdImpression(impressionData);
 #endif
         }
     }

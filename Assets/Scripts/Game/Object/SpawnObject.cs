@@ -1,4 +1,5 @@
-using MEC;
+using com.unimob.mec;
+using NPS.Pooling;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +21,7 @@ public class SpawnObject : MonoBehaviour
 
     public virtual void Spawn()
     {
-        var obj = pool ? NPS.Pooling.Manager.S.Spawn(prefab, parent) : Instantiate(prefab, parent);
+        var obj = pool ? Manager.S.Spawn(prefab, parent) : Instantiate(prefab, parent);
         obj.transform.position = this.transform.position;
     }
 }

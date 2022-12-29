@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
 using UnityEngine.SceneManagement;
-using MEC;
+using com.unimob.mec;
 
 public class MonoScene : MonoSingleton<MonoScene>
 {

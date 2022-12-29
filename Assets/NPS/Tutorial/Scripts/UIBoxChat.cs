@@ -4,18 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public class UIBoxChat : MonoBehaviour
     {
-        public class UIBoxChat : MonoBehaviour
-        {
-            [SerializeField] TextMeshProUGUI txtMessage = null;
+        [SerializeField] TextMeshProUGUI txtMessage = null;
 
-            public void Set(string message)
-            {
-                txtMessage.text = message;
-            }
+        public void Set(string message)
+        {
+            txtMessage.text = message;
         }
     }
 }

@@ -1,12 +1,9 @@
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public enum LockType
     {
-        public enum LockType
-        {
-            Black,
-            Transparent,
-            None
-        }
+        Black,
+        Transparent,
+        None
     }
 }

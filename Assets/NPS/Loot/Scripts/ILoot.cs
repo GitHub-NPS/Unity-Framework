@@ -1,10 +1,7 @@
-namespace NPS
+namespace NPS.Loot
 {
-    namespace Loot
+    public interface ILoot
     {
-        public interface ILoot
-        {
-            void Loot(LootData data);
-        }
+        void Loot(LootData data);
     }
 }

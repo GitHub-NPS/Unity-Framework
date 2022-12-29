@@ -1,5 +1,5 @@
 using UnityEngine;
-using NPS;
+using com.unimob.pattern.singleton;
 
 public class DatabaseManager : MonoSingleton<DatabaseManager>
 {

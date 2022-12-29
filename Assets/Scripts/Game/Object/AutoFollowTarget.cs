@@ -1,11 +1,11 @@
-using MEC;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using com.unimob.timer;
 
 public class AutoFollowTarget : MonoBehaviour
 {
-    private CoroutineHandle handle;
+    private TickData tick = new TickData(TimerType.SlowUpdate);
 
     private void OnDisable()
     {
@@ -14,25 +14,22 @@ public class AutoFollowTarget : MonoBehaviour
 
     public void Follow(Transform target)
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
-        handle = Timing.RunCoroutine(_AutoFollow(target), Segment.SlowUpdate, TimingTag.Update.ToString());
+        UnFollow();
+
+        tick.Action = () => Tick(target);
+        tick.RegisterTick();
+    }
+
+    private void Tick(Transform target)
+    {
+        if (!target || !target.gameObject.activeSelf)
+            UnFollow();
+
+        this.transform.position = target.position;
     }
 
     public void UnFollow()
     {
-        if (handle.IsValid) Timing.KillCoroutines(handle);
-    }
-
-    private IEnumerator<float> _AutoFollow(Transform target)
-    {
-        while (true)
-        {
-            if (!target || !target.gameObject.activeSelf) break;
-            
-            this.transform.position = target.position;
-            yield return Timing.DeltaTime;
-        }
-
-        UnFollow();
+        tick.RemoveTick();
     }
 }

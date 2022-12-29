@@ -4,27 +4,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public class UIHand : Hand
     {
-        public class UIHand : Hand
-        {
-            [SerializeField] private SkeletonGraphic ga;
+        [SerializeField] private SkeletonGraphic ga;
 
 #if UNITY_EDITOR
-            private void OnValidate()
-            {
-                ga = hand.GetComponent<SkeletonGraphic>();
-            }
+        private void OnValidate()
+        {
+            ga = hand.GetComponent<SkeletonGraphic>();
+        }
 #endif
 
-            public override void Set(HandType type)
-            {
-                ga.Initialize(false);
+        public override void Set(HandType type)
+        {
+            ga.Initialize(false);
 
-                ga.AnimationState.SetAnimation(0, Constant.HandType2Anim[type], true);
-            }
+            ga.AnimationState.SetAnimation(0, Constant.HandType2Anim[type], true);
         }
     }
 }

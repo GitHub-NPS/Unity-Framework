@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using NPS;
+using com.unimob.pattern.singleton;
 using UnityEngine;
 
 public class DataliveManager : MonoSingleton<DataliveManager>

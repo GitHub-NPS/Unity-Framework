@@ -1,4 +1,7 @@
 public enum LootType
 {
-    Currency
+    Currency,
+    Chest,
+    Equipment,
+    Special,
 }

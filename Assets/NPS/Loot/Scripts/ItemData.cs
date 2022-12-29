@@ -1,12 +1,9 @@
-namespace NPS
+namespace NPS.Loot
 {
-    namespace Loot
+    [System.Serializable]
+    public class ItemData
     {
-        [System.Serializable]
-        public class ItemData
-        {
-            public LootType Type;
-            public UIItem Item;
-        }
+        public LootType Type;
+        public UIItem Item;
     }
 }

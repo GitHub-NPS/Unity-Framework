@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
-using System.Runtime.InteropServices;
 using System.Threading;
-using NPS;
+using com.unimob.pattern.singleton;
 
 public class UnbiasedTime : MonoSingleton<UnbiasedTime>
 {

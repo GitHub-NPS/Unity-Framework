@@ -25,7 +25,7 @@ public class ProCameraManager : MonoBehaviour
 
     private void Start()
     {
-        
+
     }
 
     public void AddFollowTarget(Transform target, float targetInfluenceH = 1, float targetInfluenceV = 1, float duration = 0, Vector2 targetOffset = default(Vector2))
@@ -72,7 +72,7 @@ public class ProCameraManager : MonoBehaviour
     {
         return;
 
-        if(time != 0) cam.DOOrthoSize(size, time);
+        if (time != 0) cam.DOOrthoSize(size, time);
         else cam.orthographicSize = size;
     }
 }

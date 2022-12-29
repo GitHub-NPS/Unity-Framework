@@ -3,55 +3,52 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public class Complete : MonoBehaviour
     {
-        public class Complete : MonoBehaviour
+        [SerializeField] private List<InitData> init;
+        [SerializeField] private List<CompleteData> complete;
+
+        private void Awake()
         {
-            [SerializeField] private List<InitData> init;
-            [SerializeField] private List<CompleteData> complete;
-
-            private void Awake()
+            var save = DataManager.Save.Tutorial;
+            foreach (var item in init)
             {
-                var save = DataManager.Save.Tutorial;
-                foreach (var item in init)
-                {
-                    if (save.Complete.Contains(item.Tut)) item.Complete?.Invoke();
-                    else item.UnComplete?.Invoke();
-                }
+                if (save.Complete.Contains(item.Tut)) item.Complete?.Invoke();
+                else item.UnComplete?.Invoke();
+            }
 
-                if (complete.Count > 0)
+            if (complete.Count > 0)
+            {
+                foreach (var item in complete)
                 {
-                    foreach (var item in complete)
+                    Manager.S.RegisterComplete(item.Tut, () =>
                     {
-                        Manager.S.RegisterComplete(item.Tut, () =>
-                        {
-                            item.Event?.Invoke();
-                        });
-                    }
+                        item.Event?.Invoke();
+                    });
                 }
             }
-
-            private void Start()
-            {
-
-            }
         }
 
-        [System.Serializable]
-        class CompleteData
+        private void Start()
         {
-            public int Tut;
-            public UnityEvent Event;
-        }
 
-        [System.Serializable]
-        class InitData
-        {
-            public int Tut;
-            public UnityEvent Complete;
-            public UnityEvent UnComplete;
         }
+    }
+
+    [System.Serializable]
+    class CompleteData
+    {
+        public int Tut;
+        public UnityEvent Event;
+    }
+
+    [System.Serializable]
+    class InitData
+    {
+        public int Tut;
+        public UnityEvent Complete;
+        public UnityEvent UnComplete;
     }
 }

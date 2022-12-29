@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using I2.Loc;
-using NPS;
+using com.unimob.pattern.singleton;
 
 #if UNITY_NOTIFICATION && UNITY_ANDROID
 using Unity.Notifications.Android;

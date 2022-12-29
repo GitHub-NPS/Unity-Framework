@@ -3,40 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace NPS
+namespace NPS.Tutorial
 {
-    namespace Tutorial
+    public class NextStep : MonoBehaviour
     {
-        public class NextStep : MonoBehaviour
-        {
-            [SerializeField] private List<NextStepData> data;
+        [SerializeField] private List<NextStepData> data;
 
-            private void Awake()
+        private void Awake()
+        {
+            if (data.Count > 0)
             {
-                if (data.Count > 0)
+                foreach (var item in data)
                 {
-                    foreach (var item in data)
+                    Manager.S.RegisterNext(item.Tut, item.Step, () =>
                     {
-                        Manager.S.RegisterNext(item.Tut, item.Step, () =>
-                        {
-                            item.Event?.Invoke();
-                        });
-                    }
+                        item.Event?.Invoke();
+                    });
                 }
             }
-
-            private void Start()
-            {
-
-            }
         }
 
-        [System.Serializable]
-        public class NextStepData
+        private void Start()
         {
-            public int Tut;
-            public int Step;
-            public UnityEvent Event;
+
         }
+    }
+
+    [System.Serializable]
+    public class NextStepData
+    {
+        public int Tut;
+        public int Step;
+        public UnityEvent Event;
     }
 }

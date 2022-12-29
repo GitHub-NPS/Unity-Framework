@@ -1,33 +1,38 @@
-using BayatGames.SaveGameFree;
 using Sirenix.OdinInspector;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using EventType = NPS.Remote.EventType;
 
 [System.Serializable]
-public class RemoteConfigSave: IDataSave
+public class RemoteConfigSave : ADataSave
 {
-    private string key = "RemoteConfig";
+    public bool NoelEnable => Event.Type == EventType.Noel && Event.IsValid;
 
     [ShowInInspector] public Dictionary<string, string> Configs = new Dictionary<string, string>();
 
-    public RemoteConfigSave()
+    public RemoteConfigSave(string key) : base(key)
     {
-        Configs.Add(RemoteConfigKey.Demo, "1");
+        Configs.Add(RemoteConfigKey.TypeEvent, "Noel");
+        Configs.Add(RemoteConfigKey.TimeEvent, "2023-2-27 23:59");
     }
 
-    public void Fix()
-    {
+    private EventData eventData = null;
 
-    }
-
-    public void Save()
+    public EventData Event
     {
-        SaveGame.Save(key, this);
+        get
+        {
+            if (eventData == null)
+            {
+                eventData = new EventData(Configs[RemoteConfigKey.TypeEvent], Configs[RemoteConfigKey.TimeEvent]);
+            }
+
+            return eventData;
+        }
     }
 }
 
 public class RemoteConfigKey
 {
-    public const string Demo = "ab_demo";
+    public const string TypeEvent = "ab_type_event";
+    public const string TimeEvent = "ab_time_event";
 }

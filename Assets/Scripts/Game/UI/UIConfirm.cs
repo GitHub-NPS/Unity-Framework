@@ -5,14 +5,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIConfirm : MonoBehaviour
+public class UIConfirm : UIView
 {
     [SerializeField] private Button buttonYes;
     [SerializeField] private Button buttonNo;
     [SerializeField] private TextMeshProUGUI txtTittle;
     [SerializeField] private TextMeshProUGUI txtDescription;
     [SerializeField] private GameObject objMask;
-    [SerializeField] private GameObject content;
     private Action callBackYes;
     private Action callBackNo;
 
@@ -23,14 +22,14 @@ public class UIConfirm : MonoBehaviour
 
     private ConfirmType type = ConfirmType.YesNo;
 
-    public void OnShow(ConfirmType type, string tittle, string description, bool mask, Action _callBackYes = null, Action _callBackNo = null)
+    public void Set(ConfirmType type, string tittle, string description, bool mask, Action _callBackYes = null, Action _callBackNo = null)
     {
         callBackYes = _callBackYes;
         callBackNo = _callBackNo;
 
         txtTittle.text = I2.Loc.LocalizationManager.GetTranslation(tittle);
         txtDescription.text = I2.Loc.LocalizationManager.GetTranslation(description);
-        
+
         objMask.SetActive(mask);
 
         if (this.type != type)
@@ -48,8 +47,6 @@ public class UIConfirm : MonoBehaviour
                     break;
             }
         }
-
-        content.SetActive(true);
     }
 
     public void OnClickYes()
@@ -67,17 +64,12 @@ public class UIConfirm : MonoBehaviour
     public void OnClickNo()
     {
         Hide();
-        
+
         if (callBackNo != null)
         {
             callBackNo();
 
             callBackNo = null;
         }
-    }
-
-    public void Hide()
-    {
-        content.SetActive(false);
     }
 }

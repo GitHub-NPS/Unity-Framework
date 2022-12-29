@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NPS.Loot;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,121 +10,40 @@ using Random = UnityEngine.Random;
 
 public static class Utils
 {
-    public static bool FindLayer(this int layer, params LayerInt[] layers)
+    public static Vector3 GetRandomPosition(Vector3 start, float radius, Collider2D collider)
     {
-        for (int i = 0; i < layers.Length; i++)
-        {
-            if (layer == (int)layers[i]) return true;
-        }
-        return false;
-    }
-
-    public static int FindLayer(params LayerBit[] layers)
-    {
-        int result = 0;
-        for (int i = 0; i < layers.Length; i++)
-        {
-            result += (int)layers[i];
-        }
-        return result;
-    }
-
-    public static List<ITag> GetObject<T>(this RaycastHit2D[] rs, List<ObjectTag> tags, int limit = -1)
-    {
-        int count = 0;
-        List<ITag> objs = new List<ITag>();
-
-        for (int i = 0; i < rs.Length; i++)
-        {
-            T t = GetObject<T>(rs[i].collider, tags);
-            if (t != null)
-            {
-                count++;
-                if (limit != -1 && count > limit)
-                {
-                    break;
-                }
-
-                objs.Add(rs[i].collider.GetComponent<ITag>());
-            }
-        }
-
-        return objs;
-    }
-
-    public static List<ITag> GetObject<T>(this Collider2D[] cl, List<ObjectTag> tags, int limit = -1)
-    {
-        int count = 0;
-        List<ITag> objs = new List<ITag>();
-
-        for (int i = 0; i < cl.Length; i++)
-        {
-            T t = GetObject<T>(cl[i], tags);
-            if (t != null)
-            {
-                count++;
-                if (limit != -1 && count > limit)
-                {
-                    break;
-                }
-
-                objs.Add(cl[i].GetComponent<ITag>());
-            }
-        }
-
-        return objs;
-    }
-
-    public static T GetObject<T>(this Collider2D cl, List<ObjectTag> tags)
-    {
-        ITag iTag = cl.GetComponent<ITag>();
-        if (iTag != null && tags.Contains(iTag.GetTag()))
-        {
-            T t = cl.GetComponent<T>();
-            if (t != null)
-            {
-                return t;
-            }
-        }
-
-        return default;
-    }
-
-    public static Vector3 GetRandomPosition(Transform from, float radius)
-    {
-        return GetRandomPosition(from, from.position, radius);
-    }
-
-    public static Vector3 GetRandomPosition(Transform trans, Vector3 start, float radius)
-    {
-        NavMeshHit hit;
         float x = 0;
         float y = 0;
+        NavMeshHit hit;
 
-        int count = 0;
-        int max = 1000;
-        while (trans)
+        int angle = Random.Range(0, 360);
+        int max = angle + 360;
+
+        while (true)
         {
-            float angle = Random.Range(0, 2 * Mathf.PI);
-            x = radius * Mathf.Cos(angle) + start.x;
-            y = radius * Mathf.Sin(angle) + start.y;
+            float a = angle * Mathf.Deg2Rad;
+            x = radius * Mathf.Cos(a) + start.x;
+            y = radius * Mathf.Sin(a) + start.y;
 
-            if (NavMesh.SamplePosition(new Vector3(x, y), out hit, 0.5f, NavMesh.AllAreas))
+            bool rs = collider.OverlapPoint(new Vector2(x, y));
+            if (rs)
             {
-                return hit.position;
+                if (NavMesh.SamplePosition(new Vector3(x, y), out hit, 0.5f, NavMesh.AllAreas))
+                {
+                    x = hit.position.x;
+                    y = hit.position.y;
+                    break;
+                }
             }
 
-            count++;
-            if (count > max)
+            angle++;
+            if (angle > max)
             {
-                Debug.LogWarning("Not Get Random Position Agent");
-                radius -= 1;
-                count = 0;
-                if (radius == 0) max = 1;
-                if (radius < 0)
-                {
-                    x = start.x; y = start.y; break;
-                }
+                radius -= 0.5f;
+
+                angle -= 360;
+                if (radius == 0)
+                    break;
             }
         }
         return new Vector3(x, y, 0);
@@ -152,6 +72,11 @@ public static class Utils
 
     public static void Dump(this object data)
     {
+        if (data == null)
+        {
+            Debug.Log("Null");
+            return;
+        }
         Debug.Log(data.GetType());
         Debug.Log(Serialize(data));
     }
@@ -170,5 +95,37 @@ public static class Utils
         }
 
         return result;
-    }    
+    }
+
+    public static List<LootData> Merge(this List<LootData> data)
+    {
+        List<LootData> result = new List<LootData>();
+        foreach (var item in data)
+        {
+            var reward = result.Find(x => x.Same(item));
+            if (reward == null)
+                result.Add(item.Clone());
+            else
+                reward.Data.Add(item.Data);
+        }
+
+        return result;
+    }
+
+    private static Renderer point;
+
+    public static bool IsObjectVisible(this Vector3 position)
+    {
+        if (!point)
+        {
+            var obj = MonoBehaviour.Instantiate(new GameObject());
+            obj.name = "Point Visible";
+            obj.transform.localScale = new Vector3(0.1f, 0.1f, 1f);
+            point = obj.AddComponent<SpriteRenderer>();
+            point.sortingOrder = -100;
+        }
+
+        point.gameObject.transform.position = position;
+        return GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(Camera.main), point.bounds);
+    }
 }

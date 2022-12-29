@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
-using MEC;
-using NPS;
+using com.unimob.mec;
+using NPS.Pattern.Observer;
 
 public class SplashGameManager : MonoBehaviour
 {
@@ -14,7 +14,7 @@ public class SplashGameManager : MonoBehaviour
 
     private void OnLoadSuccess(object obj)
     {
-        MonoScene.S.LoadAsync("Main");
+        ChangeScene();
     }
 
     private void OnDestroy()
@@ -27,8 +27,9 @@ public class SplashGameManager : MonoBehaviour
     private void Start()
     {
         DataManager.S.Init();
-        AppManager.S.Init();        
+        AppManager.S.Init();
 
+        Loading.Show();
         Loading.Loading(3f, () =>
         {
             Loading.Tap2Continue(() =>
@@ -38,5 +39,10 @@ public class SplashGameManager : MonoBehaviour
         }, false);
 
         AppManager.Ads?.HideBanner();
+    }
+
+    private void ChangeScene()
+    {
+        MonoScene.S.LoadAsync("Main");
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using NPS.Loot;
+using NPS.Math;
 
 public class UIItemCurrency : UIItem
 {
