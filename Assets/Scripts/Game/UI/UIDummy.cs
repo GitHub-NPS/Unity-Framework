@@ -3,10 +3,10 @@ using UnityEngine.UI;
 
 public class UIDummy : Dummy
 {
-    [SerializeField] private Image icon;
+    [SerializeField] private Image visual;
 
     public override void Set(string content)
     {
-        icon.sprite = ResourceManager.S.LoadSprite("Currency", content);
+        visual.sprite = ResourceManager.S.LoadSprite("Currency", content);
     }
 }

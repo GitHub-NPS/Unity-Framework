@@ -325,7 +325,6 @@ public class EditorTools : EditorWindow
     {
         if (GUILayout.Button("List Unique Char")) DistinctAllCharacterInSheet();
         if (GUILayout.Button("Clear Save Data")) ClearSaveData();
-        if (GUILayout.Button("Clear Live Data")) ClearLiveData();
 
         GUILayout.Label("List Scene", EditorStyles.boldLabel);
         var scenes = EditorBuildSettings.scenes;
@@ -345,12 +344,6 @@ public class EditorTools : EditorWindow
         SaveGame.Clear();
         PlayerPrefs.DeleteAll();
         Debug.Log("Clear Save Data");
-    }
-
-    private void ClearLiveData()
-    {
-        //Resources.Load<DemoLive>("Live/DemoLive").Clear();
-        Debug.Log("Clear Live Data");
     }
 }
 #endif

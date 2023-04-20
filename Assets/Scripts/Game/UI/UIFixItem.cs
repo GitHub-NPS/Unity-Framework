@@ -8,11 +8,11 @@ using System;
 public abstract class UIFixItem : MonoBehaviour
 {
     public CurrencyType Type => type;
-    public Transform TranIcon => imgBg.gameObject.transform;
+    public Transform TranIcon => imgIcon.gameObject.transform;
 
     [SerializeField] protected CurrencyType type;
     [SerializeField] private TextMeshProUGUI txtAmount;
-    [SerializeField] protected Image imgBg;
+    [SerializeField] protected Image imgIcon;
 
     private UserSave userSave;
 

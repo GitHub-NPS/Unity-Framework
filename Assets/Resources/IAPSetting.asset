@@ -13,6 +13,21 @@ MonoBehaviour:
   m_Name: IAPSetting
   m_EditorClassIdentifier: 
   Products:
-  - Id: com.unimob.undead.city.demo
+  - Id: com.unimob.foodfever.gem_0
     Type: 0
-    Price: $0.99
+    Price: $1.99
+  - Id: com.unimob.foodfever.gem_1
+    Type: 0
+    Price: $4.99
+  - Id: com.unimob.foodfever.gem_2
+    Type: 0
+    Price: $9.99
+  - Id: com.unimob.foodfever.gem_3
+    Type: 0
+    Price: $19.99
+  - Id: com.unimob.foodfever.gem_4
+    Type: 0
+    Price: $49.99
+  - Id: com.unimob.foodfever.gem_5
+    Type: 0
+    Price: $99.99

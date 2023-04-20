@@ -57,7 +57,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4389766016949035744}
-  - component: {fileID: 262648389090279665}
   m_Layer: 0
   m_Name: PoolManager
   m_TagString: Untagged
@@ -80,18 +79,6 @@ Transform:
   m_Father: {fileID: 7777279076790546286}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &262648389090279665
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 201843109400396101}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 009394c5cb7f74d02a71ae47ed2804a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2023068986101112234
 GameObject:
   m_ObjectHideFlags: 0
@@ -101,6 +88,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7777279076790546286}
+  - component: {fileID: 4647099551790112815}
   m_Layer: 0
   m_Name: ManageMainGame
   m_TagString: Untagged
@@ -127,6 +115,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4647099551790112815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2023068986101112234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 792d9ca2f9c9eaa4dbd375ea3a39f366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2981025547920556654
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,4 +471,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0baded315045217449f782ea457e66a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Atlas: []
+  Atlas:
+  - {fileID: 4343727234628468602, guid: f89f99de6d0077e4bab67fa51c6bed9e, type: 2}

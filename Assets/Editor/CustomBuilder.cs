@@ -8,12 +8,13 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.U2D;
 using UnityEngine;
 
-public static class CustomBuilder {
-    private const string GoogleCredentialsId = "";
-    private const string FirebaseAndroidAppId = "";
-    private const string FirebaseIosAppId = "";
-    private const string FirebaseCliToken = "";
-    private const string IosAppId = "";
+public static class CustomBuilder
+{
+    private const string GoogleCredentialsId = "google_publisher_account_unimob_global";
+    private const string FirebaseAndroidAppId = "1:117794470811:android:da43380c002d84441bff3e";
+    private const string FirebaseIosAppId = "1:117794470811:ios:eefae854ca67bd551bff3e";
+    private const string FirebaseCliToken = "1//0ep18apY1O0HXCgYIARAAGA4SNwF-L9IrDo1iznfZNIK-9ZKX-lE9P0ftsvik2XQzGoghBz5lxBLP0aV2IqwNcZuEFjqzwIulsBg";
+    private const string IosAppId = "6447154983";
     private const string UserKeystore = "foodfever.keystore";
     private const string KeyaliasName = "foodfever";
     private const string KeyaliasPass = "ffsmobile";
@@ -21,33 +22,33 @@ public static class CustomBuilder {
 
     #region Build
 
-    public static void Build() {
+    public static void Build()
+    {
         BeforeBuild();
         var pipeline = Configs["PIPELINE"];
         // This was set during CI pipeline
         Console.WriteLine($"LOG::: Build Target {EditorUserBuildSettings.activeBuildTarget}");
-        switch (EditorUserBuildSettings.activeBuildTarget) {
+        switch (EditorUserBuildSettings.activeBuildTarget)
+        {
             case BuildTarget.iOS:
                 BuildiOS();
                 break;
             case BuildTarget.Android:
                 BuildAndroid();
                 break;
-            default:
-                throw new Exception("Not support this build target " + EditorUserBuildSettings.activeBuildTarget);
+            default: throw new Exception("Not support this build target " + EditorUserBuildSettings.activeBuildTarget);
         }
 
-        void BuildAndroid() {
+        void BuildAndroid()
+        {
             Console.WriteLine($"LOG::: Start building android {pipeline}");
-            switch (pipeline) {
+            switch (pipeline)
+            {
                 case "production":
                     BuildAndroidProduction();
                     break;
                 case "staging":
                     BuildAndroidStaging();
-                    break;
-                case "development":
-                    BuildAndroidDevelopment();
                     break;
                 default:
                     BuildAndroidDevelopment();
@@ -55,9 +56,11 @@ public static class CustomBuilder {
             }
         }
 
-        void BuildiOS() {
+        void BuildiOS()
+        {
             Console.WriteLine($"LOG::: Start building iOS {pipeline}");
-            switch (pipeline) {
+            switch (pipeline)
+            {
                 case "production":
                     BuildXcodeProject();
                     break;
@@ -66,19 +69,26 @@ public static class CustomBuilder {
                     break;
             }
         }
-
-        AfterBuild();
     }
 
-    private static void AfterBuild() {
-        // var report = BuildReportTool.ReportGenerator.CreateReport();
-        // var reportExportFile = GetAndroidBuildPath(".buildreport");
-        // System.IO.File.Copy(report, reportExportFile, true);
+    private static void AfterBuild()
+    {
+        var projectPath = new DirectoryInfo(Application.dataPath).Parent;
+        if (projectPath != null)
+        {
+            var report = BuildReportTool.ReportGenerator.CreateReport(Path.Combine(projectPath.FullName, "buildlog.txt"));
+            Debug.Log($"LOG::: {report}");
+            if (!string.IsNullOrEmpty(report))
+            {
+                var reportExportFile = GetAndroidBuildPath(".xml");
+                File.Copy(report, reportExportFile, true);
+            }
+        }
     }
 
-    public static void BuildAndroidProduction() {
+    public static void BuildAndroidProduction()
+    {
         AddScriptingDefineSymbol("PRODUCTION");
-        RemoveScriptingDefineSymbol("STAGING");
         RemoveScriptingDefineSymbol("DEVELOPMENT"); // Someone might accidentally add this
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
@@ -87,42 +97,47 @@ public static class CustomBuilder {
         EditorUserBuildSettings.buildAppBundle = true;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
 #if UNITY_2020_1_OR_NEWER
-        PlayerSettings.Android.minifyDebug = true;
-        PlayerSettings.Android.minifyRelease = true;
+        PlayerSettings.Android.minifyDebug = false;
+        PlayerSettings.Android.minifyRelease = false;
 #endif
         SwitchScriptingImplement(ScriptingImplementation.IL2CPP);
-
-        var report = BuildPipeline.BuildPlayer(
-            GetEnabledScenes(), GetAndroidBuildPath(".aab"), BuildTarget.Android, BuildOptions.None);
+        var buildPlayerOptions = new BuildPlayerOptions();
+        buildPlayerOptions.scenes = GetEnabledScenes();
+        buildPlayerOptions.target = BuildTarget.Android;
+        buildPlayerOptions.locationPathName = GetAndroidBuildPath(".aab");
+        buildPlayerOptions.options = BuildOptions.CompressWithLz4HC;
+        var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
         var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+        if (code == 0) AfterBuild();
         EditorApplication.Exit(code);
     }
 
-    public static void BuildAndroidStaging() {
-        AddScriptingDefineSymbol("STAGING");
-        RemoveScriptingDefineSymbol("DEVELOPMENT");
-        RemoveScriptingDefineSymbol("PRODUCTION"); // Someone might accidentally add this
+    public static void BuildAndroidStaging()
+    {
+        AddScriptingDefineSymbol("PRODUCTION");
+        RemoveScriptingDefineSymbol("DEVELOPMENT"); // Someone might accidentally add this
+		RemoveScriptingDefineSymbol("STAGING");
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
         EditorUserBuildSettings.symlinkSources = false;
         EditorUserBuildSettings.androidCreateSymbolsZip = false;
-        EditorUserBuildSettings.buildAppBundle = true;
+        EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
 #if UNITY_2020_1_OR_NEWER
         PlayerSettings.Android.minifyDebug = false;
         PlayerSettings.Android.minifyRelease = false;
 #endif
         SwitchScriptingImplement(ScriptingImplementation.IL2CPP);
-
         var report = BuildPipeline.BuildPlayer(
-            GetEnabledScenes(), GetAndroidBuildPath(".aab"), BuildTarget.Android, BuildOptions.None);
+            GetEnabledScenes(), GetAndroidBuildPath(), BuildTarget.Android, BuildOptions.CompressWithLz4HC);
         var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+        if (code == 0) AfterBuild();
         EditorApplication.Exit(code);
     }
 
-    public static void BuildAndroidDevelopment() {
+    public static void BuildAndroidDevelopment()
+    {
         AddScriptingDefineSymbol("DEVELOPMENT");
-        RemoveScriptingDefineSymbol("STAGING");
         RemoveScriptingDefineSymbol("PRODUCTION");
         PlayerSettings.Android.useCustomKeystore = false;
         EditorUserBuildSettings.development = false;
@@ -136,44 +151,49 @@ public static class CustomBuilder {
         buildPlayerOptions.scenes = GetEnabledScenes();
         buildPlayerOptions.target = BuildTarget.Android;
         buildPlayerOptions.locationPathName = GetAndroidBuildPath();
-
-        // var report = BuildPipeline.BuildPlayer(GetEnabledScenes(), GetAndroidBuildPath(), BuildTarget.Android, BuildOptions.None);
+        buildPlayerOptions.options = BuildOptions.CompressWithLz4;
         var report = BuildPipeline.BuildPlayer(buildPlayerOptions);
         var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
+        if (code == 0) AfterBuild();
         EditorApplication.Exit(code);
     }
 
-    public static void BuildXcodeProject() {
+    public static void BuildXcodeProject()
+    {
         AddScriptingDefineSymbol("PRODUCTION");
         RemoveScriptingDefineSymbol("DEVELOPMENT"); // Someone might accidentally add this
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
         EditorUserBuildSettings.symlinkSources = true;
         SwitchScriptingImplement(ScriptingImplementation.IL2CPP);
-        var report = BuildPipeline.BuildPlayer(GetEnabledScenes(), GetXcodeFolder(), BuildTarget.iOS, BuildOptions.None);
+        var report =
+            BuildPipeline.BuildPlayer(GetEnabledScenes(), GetXcodeFolder(), BuildTarget.iOS, BuildOptions.CompressWithLz4HC);
         var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
         EditorApplication.Exit(code);
     }
 
-    public static void BuildXcodeProjectDevelopment() {
-        AddScriptingDefineSymbol("DEVELOPMENT");
-        RemoveScriptingDefineSymbol("PRODUCTION");
+    public static void BuildXcodeProjectDevelopment()
+    {
+        //AddScriptingDefineSymbol("DEVELOPMENT");
+        //RemoveScriptingDefineSymbol("PRODUCTION");
         EditorUserBuildSettings.development = false;
         EditorUserBuildSettings.allowDebugging = false;
         EditorUserBuildSettings.symlinkSources = false;
         SwitchScriptingImplement(ScriptingImplementation.IL2CPP);
         var report =
-            BuildPipeline.BuildPlayer(GetEnabledScenes(), GetXcodeFolder(), BuildTarget.iOS, BuildOptions.None);
+            BuildPipeline.BuildPlayer(GetEnabledScenes(), GetXcodeFolder(), BuildTarget.iOS, BuildOptions.CompressWithLz4HC);
         var code = report.summary.result == BuildResult.Succeeded ? 0 : 1;
         EditorApplication.Exit(code);
     }
 
-    private static void SwitchScriptingImplement(ScriptingImplementation target) {
+    private static void SwitchScriptingImplement(ScriptingImplementation target)
+    {
         if (PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android) != target)
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, target);
     }
 
-    public static void AddScriptingDefineSymbol(params string[] defines) {
+    public static void AddScriptingDefineSymbol(params string[] defines)
+    {
         var definesString =
             PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
         var allDefines = definesString.Split(';').ToList();
@@ -182,12 +202,14 @@ public static class CustomBuilder {
             string.Join(";", allDefines.ToArray()));
     }
 
-    public static void RemoveScriptingDefineSymbol(params string[] defines) {
+    public static void RemoveScriptingDefineSymbol(params string[] defines)
+    {
         var definesString =
             PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
         var allDefines = definesString.Split(';').ToList();
         foreach (var define in defines)
-            if (allDefines.Contains(define)) {
+            if (allDefines.Contains(define))
+            {
                 Debug.Log($"LOG::: remove {define} from Define Symbols");
                 allDefines.Remove(define);
             }
@@ -200,19 +222,22 @@ public static class CustomBuilder {
 
     #region Environment
 
-    public static void CleanUpDeletedScenes() {
+    public static void CleanUpDeletedScenes()
+    {
         var currentScenes = EditorBuildSettings.scenes;
-        EditorBuildSettings.scenes = currentScenes.Where(ebss => AssetDatabase.LoadAssetAtPath(ebss.path, typeof(SceneAsset)) != null).ToArray();
+        EditorBuildSettings.scenes = currentScenes
+            .Where(ebss => AssetDatabase.LoadAssetAtPath(ebss.path, typeof(SceneAsset)) != null).ToArray();
     }
 
-    private static void BeforeBuild() {
+    private static void BeforeBuild()
+    {
         CleanUpDeletedScenes();
 
         AppendConfig("GOOGLE_CREDENTIALS_ID", GoogleCredentialsId);
         AppendConfig("FIREBASE_ANDROID_APP_ID", FirebaseAndroidAppId);
         AppendConfig("FIREBASE_IOS_APP_ID", FirebaseIosAppId);
         AppendConfig("FIREBASE_TOKEN", FirebaseCliToken);
-        AppendConfig("IOS_APP_ID", FirebaseCliToken);
+        AppendConfig("IOS_APP_ID", IosAppId);
 
         KeyStore();
 
@@ -228,9 +253,27 @@ public static class CustomBuilder {
 
         AssetDatabase.SaveAssets();
         BuildAddressable();
+
+		try
+        {
+            var projectPath = new DirectoryInfo(Application.dataPath).Parent;
+            if (projectPath != null)
+            {
+                var buildPath = Path.Combine(projectPath.FullName, "build", "Android");
+                if (!Directory.Exists(buildPath))
+                {
+                    Directory.CreateDirectory(buildPath);
+                }
+            }
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
-    private static void KeyStore() {
+    private static void KeyStore()
+    {
         // PlayerSettings.Android.useCustomKeystore = false;
         PlayerSettings.Android.useCustomKeystore = true;
         PlayerSettings.Android.keystoreName = UserKeystore;
@@ -239,7 +282,8 @@ public static class CustomBuilder {
         PlayerSettings.Android.keystorePass = KeystorePass;
     }
 
-    private static void BuildAddressable() {
+    private static void BuildAddressable()
+    {
         // AddressableAssetSettings.CleanPlayerContent(); // Clean everything
         // Console.WriteLine("LOG::: Start Build addressable");
         //
@@ -250,41 +294,54 @@ public static class CustomBuilder {
         // Console.WriteLine("LOG::: Build addressable Done");
     }
 
-    private static void SetupBuildBundleVersion() {
-        try {
+    private static void SetupBuildBundleVersion()
+    {
+        try
+        {
             var buildNumber = GetEnvironmentVariable("BUILD_NUMBER");
             var buildCount = int.Parse(buildNumber);
-            if (Configs.ContainsKey("BUILD_BASE_BUNDLE_VERSION")) {
+            if (Configs.ContainsKey("BUILD_BASE_BUNDLE_VERSION"))
+            {
                 var baseBuildCount = int.Parse(Configs["BUILD_BASE_BUNDLE_VERSION"]);
                 PlayerSettings.Android.bundleVersionCode = baseBuildCount + buildCount;
                 PlayerSettings.iOS.buildNumber = (baseBuildCount + buildCount).ToString();
-            } else {
+            }
+            else
+            {
                 PlayerSettings.Android.bundleVersionCode = buildCount;
                 PlayerSettings.iOS.buildNumber = buildCount.ToString();
             }
+
 #if UNITY_ANDROID
             AppendConfig("BUNDLE_VERSION_CODE", $"{PlayerSettings.Android.bundleVersionCode}");
 #elif UNITY_IOS
             AppendConfig("BUNDLE_VERSION_CODE", $"{PlayerSettings.iOS.buildNumber}");
 #endif
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Console.WriteLine("ERROR::: MISSING Environment for Build versioning");
             Console.WriteLine(e);
         }
     }
 
-    private static void SetupBuildVersion() {
+    private static void SetupBuildVersion()
+    {
         // Change the game version and bundle version if config have it
-        if (Configs.ContainsKey("RELEASE_VERSION")) {
+        if (Configs.ContainsKey("RELEASE_VERSION"))
+        {
             // version set up by semantic versioning
             Console.WriteLine("LOG::: Found release version in config");
             PlayerSettings.bundleVersion = Configs["RELEASE_VERSION"];
-        } else {
+        }
+        else
+        {
             AppendConfig("RELEASE_VERSION", PlayerSettings.bundleVersion);
         }
     }
 
-    private static string GetEnvironmentVariable(string name) {
+    private static string GetEnvironmentVariable(string name)
+    {
         var envs = Environment.GetEnvironmentVariables();
         foreach (DictionaryEntry entry in envs)
             if (name == entry.Key.ToString())
@@ -292,10 +349,12 @@ public static class CustomBuilder {
         return null;
     }
 
-    private static void PrintAllEnviromentVariables() {
+    private static void PrintAllEnviromentVariables()
+    {
         Console.WriteLine("----------START ENVIRONMENT VARIABLES---------");
         var envs = Environment.GetEnvironmentVariables();
-        foreach (DictionaryEntry entry in envs) Console.WriteLine(entry.Key + " " + entry.Value);
+        foreach (DictionaryEntry entry in envs)
+            Console.WriteLine(entry.Key + " " + entry.Value);
 
         var args = Environment.GetCommandLineArgs();
         var length = args.Length;
@@ -306,7 +365,8 @@ public static class CustomBuilder {
     }
 
     // This is build information. Show this in game to identify build version
-    private static void WriteBuildInfoFile() {
+    private static void WriteBuildInfoFile()
+    {
         AppendConfig("BUNDLE_VERSION", PlayerSettings.bundleVersion);
         var path = "Assets/Resources/BuildInfo.txt";
         var branch = Configs["GIT_BRANCH"];
@@ -329,12 +389,14 @@ public static class CustomBuilder {
 
     #region Naming build folder
 
-    private static string[] GetEnabledScenes() {
+    private static string[] GetEnabledScenes()
+    {
         return (from scene in EditorBuildSettings.scenes where scene.enabled select scene.path).ToArray();
     }
 
     // File name is simple. Only when archive/moving file. It change name using shell
-    public static string GetAndroidBuildPath(string extension = ".apk") {
+    public static string GetAndroidBuildPath(string extension = ".apk")
+    {
         var projectDir = new DirectoryInfo(Application.dataPath).Parent;
         var time = DateTime.Now; // Use build time as name not git Commit date time. Due to sometime parse failed
         var branch = Configs["GIT_BRANCH"];
@@ -352,11 +414,13 @@ public static class CustomBuilder {
         return path;
     }
 
-    public static string ReplaceInvalidChars(string filename) {
+    public static string ReplaceInvalidChars(string filename)
+    {
         return string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
     }
 
-    public static string GetXcodeFolder() {
+    public static string GetXcodeFolder()
+    {
         var projectDir = new DirectoryInfo(Application.dataPath).Parent;
         var path = Path.Combine(projectDir.FullName, "build", "iOS");
         Debug.Log(path);
@@ -370,38 +434,63 @@ public static class CustomBuilder {
 
     private static Dictionary<string, string> _configs;
 
-    public static Dictionary<string, string> Configs {
-        get {
-            if (_configs != null) return _configs;
+    public static Dictionary<string, string> Configs
+    {
+        get
+        {
+            if (_configs != null)
+                return _configs;
             InitConfig();
             return _configs;
         }
     }
 
-    private static void InitConfig() {
+    private static void InitConfig()
+    {
         var projectDir = new DirectoryInfo(Application.dataPath).Parent;
         var configFile = Path.Combine(projectDir.FullName, "config.cfg");
         var lines = File.ReadAllLines(configFile);
         _configs = new Dictionary<string, string>();
-        try {
-            foreach (var line in lines) {
+        try
+        {
+            foreach (var line in lines)
+            {
                 var splits = line.Split('=');
                 var key = splits[0];
                 var value = splits.Length > 1 ? splits[1] : null;
                 _configs.Add(key, value?.Replace("\"", ""));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             Console.WriteLine("ERROR::: Broken config files");
             Console.WriteLine(e);
         }
     }
 
-    private static void AppendConfig(string key, string value) {
+    private static void AppendConfig(string key, string value)
+    {
         var projectDir = new DirectoryInfo(Application.dataPath).Parent;
         var configFile = Path.Combine(projectDir.FullName, "config.cfg");
-        try {
-            File.AppendAllLines(configFile, new[] { $"{key}={value}" });
-        } catch (Exception e) {
+        try
+        {
+            var configs = new Dictionary<string, string>();
+            var lines = File.ReadAllLines(configFile);
+            foreach (var line in lines)
+            {
+                var splits = line.Split('=');
+                var k = splits[0];
+                var v = splits.Length > 1 ? splits[1] : null;
+                configs.Add(k, v?.Replace("\"", ""));
+            }
+
+            if (!configs.ContainsKey(key))
+            {
+                File.AppendAllLines(configFile, new[] { $"{key}={value}" });
+            }
+        }
+        catch (Exception e)
+        {
             Console.WriteLine("ERROR::: Broken config files");
             Console.WriteLine(e);
         }

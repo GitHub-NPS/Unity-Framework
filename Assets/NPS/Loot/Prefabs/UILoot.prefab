@@ -541,6 +541,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a7ad24fa87f4174eabc4c33f1ce6730, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  evtLootReward: {fileID: 11400000, guid: b40d58495739e4bf1925592ae1995337, type: 2}
   content: {fileID: 7993305379899620728}
   lootContent: {fileID: 3358167963022562380}
   lstLootItem:

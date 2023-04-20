@@ -4,14 +4,6 @@ using UnityEngine.UI;
 
 public class UIFixItemCoin : UIFixItem
 {
-    [SerializeField] private Image imgIcon;
-
-    protected override void Start()
-    {
-        imgIcon.sprite = ResourceManager.S.LoadSprite("Currency", Utils.GetCurrency(type));
-        base.Start();
-    }
-
     public override void OnClick()
     {
 #if DEVELOPMENT || UNITY_EDITOR || STAGING
