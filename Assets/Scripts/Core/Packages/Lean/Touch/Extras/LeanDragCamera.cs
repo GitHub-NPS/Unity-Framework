@@ -106,7 +106,7 @@ namespace Lean.Touch
 			var oldPosition = transform.localPosition;
 
 			// Pan the camera based on the world delta
-			transform.position -= worldDelta * sensitivity;
+			transform.position -= worldDelta * sensitivity;			
 
 			// Add to remainingDelta
 			remainingDelta += transform.localPosition - oldPosition;
@@ -149,6 +149,8 @@ namespace Lean.Touch.Editor
 			Draw("sensitivity", "The movement speed will be multiplied by this.\n\n-1 = Inverted Controls.");
 			Draw("damping", "If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
 			Draw("inertia", "This allows you to control how much momentum is retained when the dragging fingers are all released.\n\nNOTE: This requires <b>Damping</b> to be above 0.");
+			Draw("size");
+			Draw("clamp");
 		}
 	}
 }

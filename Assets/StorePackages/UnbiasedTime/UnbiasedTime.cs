@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Runtime.InteropServices;
 using System.Threading;
 using com.unimob.pattern.singleton;
 
@@ -36,17 +37,11 @@ public class UnbiasedTime : MonoSingleton<UnbiasedTime>
     {
         get
         {
-#if UNITY_EDITOR
-            // Debug.Log(TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow));
-            return DateTime.UtcNow;
-#endif
-#pragma warning disable 162
-#if UNITY_EDITOR || DEVELOPMENT
+#if UNITY_EDITOR || DEVELOPMENT || STAGING
             return DateTime.UtcNow;
 #else
             return S.Now().ToUniversalTime();
 #endif
-#pragma warning restore 162
         }
     }
 

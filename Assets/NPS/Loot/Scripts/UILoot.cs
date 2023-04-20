@@ -8,13 +8,16 @@ namespace NPS.Loot
 {
     public class UILoot : MonoBehaviour
     {
+        [SerializeField] GameEventLootType evtLootReward;
+
         [SerializeField] private GameObject content;
 
         [SerializeField] private Transform lootContent;
         [SerializeField] private List<ItemData> lstLootItem;
-
         private Dictionary<LootType, ItemData> dicLootItem = new Dictionary<LootType, ItemData>();
         private List<UIItem> items = new List<UIItem>();
+
+        private UserSave userSave;
 
         private void Awake()
         {
@@ -22,6 +25,7 @@ namespace NPS.Loot
             {
                 if (!dicLootItem.ContainsKey(item.Type)) dicLootItem.Add(item.Type, item);
             }
+            userSave = DataManager.Save.User;
         }
 
         public void Show(List<LootData> rewards)
@@ -30,9 +34,8 @@ namespace NPS.Loot
             {
                 if (dicLootItem.ContainsKey(item.Type))
                 {
-                    var obj = Pooling.Manager.S.Spawn(dicLootItem[item.Type].Item, lootContent);
+                    var obj = NPS.Pooling.Manager.S.Spawn(dicLootItem[item.Type].Item, lootContent);
                     obj.Set(item.Data);
-                    obj.Light(true);
 
                     items.Add(obj);
                 }
@@ -45,8 +48,9 @@ namespace NPS.Loot
         {
             foreach (var item in items)
             {
-                Pooling.Manager.S.Despawn(item.gameObject);
+                NPS.Pooling.Manager.S.Despawn(item.gameObject);
             }
+
             items.Clear();
 
             content.SetActive(false);
@@ -65,10 +69,8 @@ namespace NPS.Loot
                     contain.Add(loots[i].Type);
             }
 
-            // Save
-
             foreach (var item in contain)
-                this.PostEvent(EventID.LootReward, item);
+                evtLootReward?.Raise(item);
         }
 
         public void Loot(LootData reward)
@@ -76,7 +78,8 @@ namespace NPS.Loot
             switch (reward.Type)
             {
                 case LootType.Currency:
-                    //MainGameScene.S.Fix.Loot(reward.Data as CurrencyData, true, true);
+                    var currency = reward.Data as CurrencyData;
+                    MainGameScene.S.Fix.Loot(currency);
                     break;
             }
         }

@@ -6,7 +6,7 @@ using com.unimob.pattern.singleton;
 using UnityEngine.iOS;
 #endif
 
-#if UNITY_REVIEW
+#if UNITY_REVIEW && UNITY_ANDROID
 using Google.Play.Review;
 #endif
 
@@ -74,7 +74,7 @@ public class RateManager : MonoSingleton<RateManager>
 #elif UNITY_ANDROID
         Application.OpenURL("market://details?id=" + Application.identifier);
 #elif UNITY_IOS
-        Application.OpenURL("itms-apps://itunes.apple.com/app/id1600189085?action=write-review");
+        Application.OpenURL("itms-apps://itunes.apple.com/app/id6447154983?action=write-review");
 #endif
     }
 }

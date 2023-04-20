@@ -1,3 +1,5 @@
+using NPS.Pattern.Observer;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,18 +7,38 @@ using UnityEngine;
 public class UIIconEvent : MonoBehaviour
 {
     public Transform TranIcon => this.gameObject.transform;
-    private EventData data;
+
+    private RemoteConfigSave remote;
 
     private void Awake()
     {
-        data = DataManager.Save.RemoteConfig.Event;
+        remote = DataManager.Save.RemoteConfig;
+
+        this.RegisterListener(EventID.StartGameSuccess, StartGameSuccess);
     }
 
-    private void Start()
+    private void StartGameSuccess(object obj)
     {
-        if (data.IsValid)
+        TutorialManager.S.RegisterComplete(101, () =>
         {
-            var ui = Instantiate(ResourceManager.S.LoadEvent($"UIIconEvent{data.Type}"), this.transform);
+            remote.CheckEvent();
+            Init();
+        });
+
+        Init();
+    }
+
+    private void OnDestroy()
+    {
+        this.RemoveListener(EventID.StartGameSuccess, StartGameSuccess);
+    }
+
+    private void Init()
+    {
+        if (remote.EnableEvent)
+        {
+            var ui = Instantiate(ResourceManager.S.LoadEvent($"UIIconEvent{DataManager.Save.RemoteConfig.Event.Type}"),
+                this.transform);
             ui.Set();
         }
     }

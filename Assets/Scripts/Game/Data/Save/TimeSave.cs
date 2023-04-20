@@ -1,12 +1,23 @@
+using BayatGames.SaveGameFree;
+using Sirenix.OdinInspector;
 using System;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class TimeSave : ADataSave
+public class TimeSave : IDataSave
 {
-    public TimeSave(string key) : base(key)
-    {
+    public string Key => key;
+    public string key;
 
+    public TimeSave(string key)
+    {
+        this.key = key;
+    }
+
+    [Button]
+    public void Save()
+    {
+        SaveGame.Save(Key, this);
     }
 
     public DateTime LastTimeOut = DateTime.UtcNow;
@@ -21,6 +32,11 @@ public class TimeSave : ADataSave
             }
             return UnbiasedTime.UtcNow - LastTimeOut;
         }
+    }
+
+    public void Fix()
+    {
+
     }
 
     public void SetLastTimeOut()

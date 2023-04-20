@@ -3,38 +3,63 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using NPS.Pattern.Observer;
+using BayatGames.SaveGameFree;
 
 [System.Serializable]
-public class UserSave : ADataSave
+public class UserSave : IDataSave
 {
-    [ShowInInspector] public Dictionary<CurrencyType, double> Currency = new Dictionary<CurrencyType, double>();
+    public bool Logged => !string.IsNullOrEmpty(googleId) || !string.IsNullOrEmpty(appleId) || !string.IsNullOrEmpty(facebookId);
+    public string Key => key;
+    public string key;
 
-    public string id = "";
-    public string name = "You";
-    public string avatar = "";
-    public int rank = -1;
-
-    public List<int> Noel = new List<int>();
-
-    public void Clear()
+    public UserSave(string key)
     {
-        Currency[CurrencyType.Coin] = -1;
-    }
+        this.key = key;
 
-    public UserSave(string key) : base(key)
-    {
         foreach (CurrencyType currency in (CurrencyType[])Enum.GetValues(typeof(CurrencyType)))
         {
             Currency.Add(currency, 0);
         }
 
         Currency[CurrencyType.Coin] = -1;
-        Currency[CurrencyType.Diamond] = 0;
     }
 
-    public override void Fix()
+    [Button]
+    public void Save()
     {
-        base.Fix();
+        SaveGame.Save(Key, this);
+    }
+
+    [ShowInInspector] public Dictionary<CurrencyType, double> Currency = new Dictionary<CurrencyType, double>();
+
+    public string uId;
+    public string devicedId;
+
+    public string googleId;
+    public string appleId;
+    public string facebookId;
+
+    public string name = "You";
+    public string avatar = "";
+
+    public int CloudVersion = 0;
+
+    public int rank = -1;
+    public float complete = -1f;
+
+    public List<int> Point = new List<int>();
+    public bool FirtsMap = false;
+
+    public void Clear()
+    {
+        Currency[CurrencyType.Coin] = -1;
+    }
+
+    public void Fix()
+    {
+        if (Currency == null) Currency = new Dictionary<CurrencyType, double>();
+
+        if (Point == null) Point = new List<int>();
 
         foreach (CurrencyType currency in (CurrencyType[])Enum.GetValues(typeof(CurrencyType)))
         {
@@ -81,5 +106,24 @@ public class UserSave : ADataSave
         Currency[type] = Currency[type] >= value ? Currency[type] - value : 0;
 
         Observer.S?.PostEvent(EventID.ChangeCurrency, type);
+    }
+
+    public void SetRank(int value)
+    {
+        rank = value;
+        Save();
+    }
+
+    public void ResetRank()
+    {
+        rank = -1;
+        complete = 0;
+      Save();
+    }
+
+    public void SetComplete(float value)
+    {
+        if (value != 0) complete = value;
+        Save();
     }
 }

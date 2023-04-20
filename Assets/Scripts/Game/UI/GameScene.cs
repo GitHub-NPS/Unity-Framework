@@ -31,9 +31,9 @@ public class GameScene<T> : MonoBehaviour
 
     }
 
-    private Dictionary<Type, UIView> views = new Dictionary<Type, UIView>();
+    protected Dictionary<Type, UIView> views = new Dictionary<Type, UIView>();
 
-    public void Show<V>(object obj = null) where V : UIView
+    public virtual void Show<V>(object obj = null) where V : UIView
     {
         if (!views.ContainsKey(typeof(V)))
         {
@@ -51,11 +51,21 @@ public class GameScene<T> : MonoBehaviour
         return views[typeof(V)] as V;
     }
 
-    public void Hide<V>() where V : UIView
+    public virtual void Hide<V>() where V : UIView
     {
         if (views.ContainsKey(typeof(V)))
         {
             views[typeof(V)].Hide();
         }
+    }
+
+    public virtual void Show(UIView view)
+    {
+        view.content.SetActive(true);
+    }
+
+    public virtual void Hide(UIView view)
+    {
+        view.content.SetActive(false);
     }
 }

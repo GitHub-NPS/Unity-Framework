@@ -27,6 +27,18 @@ public class UILoading : UIView
         txtVersion.text = "Version: " + Application.version;
     }
 
+    public override void Show(object obj = null)
+    {
+        Initialize();
+
+        content.SetActive(true);
+    }
+
+    public override void Hide()
+    {
+        content.SetActive(false);
+    }
+
     public void Loading(float time, Action callback = null, bool reset = true)
     {
         this.time = time;
@@ -76,5 +88,10 @@ public class UILoading : UIView
         btnTap2Play.SetActive(true);
         loadingBar.SetActive(false);
         txtLoading.gameObject.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        if (handle.IsValid) Timing.KillCoroutines(handle);
     }
 }

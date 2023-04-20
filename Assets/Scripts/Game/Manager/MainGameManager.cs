@@ -1,6 +1,5 @@
 using com.unimob.mec;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using NPS.Pattern.Observer;
 
@@ -33,7 +32,6 @@ public class MainGameManager : MonoBehaviour
     private void Start()
     {
         generalSave = DataManager.Save.General;
-
         if (generalSave.Ads) AppManager.Ads?.ShowBanner();
     }
 }

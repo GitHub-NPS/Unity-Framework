@@ -12,7 +12,7 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
     private string devKey = "HWAAfxs6ec2wwZfsRpjipJ";
 
     private string androidPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCeSSfGeB/YmRP5V8KHqyb19C6e9M4S2AeNpVcIylOpgSTIeTImzjz0RCXnYjnGZrkuruO9Fgn/FcLPN1015JUNmEUOU1p6R0pL+ugvkuKeP9xQf1s8QrCToENS0EnHiC3fJOcUi3za8XKKqt2Tn1pqyua5l2yQt0TTN5HuK/QzSV4zDE787UXeaEfh7sxd5+pOfVRkpXWcdWdbzecffRvTs7CwWiPZ3mqDM5ADjp/gmT81sfSI21h7fKOkHFRKP5jM7mNsm/Nqnq6v5GE4pdC+lndxtAbn2+dUQcKHb7QzLqDd/aDEguRw4mB3CcSsplL0m6ONqyj49fGXUwyx43QIDAQAB";
-    private string iOSAppId = "1600189085";
+    private string iOSAppId = "6447154983";
     private bool m_IsInitialized = false;
 
     private bool tokenSent;
@@ -25,11 +25,11 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 #endif
         devKey = "HWAAfxs6ec2wwZfsRpjipJ";
 #elif IOS_FREE_PRODUCTION
-        devKey = "G3MBmMRHTuEpXbqyqSWGeK";
-        iOSAppId = "1600189085";
+        devKey = "HWAAfxs6ec2wwZfsRpjipJ";
+        iOSAppId = "6447154983";
 #else
         devKey = "HWAAfxs6ec2wwZfsRpjipJ";
-        iOSAppId = "1600189085";
+        iOSAppId = "6447154983";
 #endif
     }
 
@@ -62,8 +62,12 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
             byte[] token = UnityEngine.iOS.NotificationServices.deviceToken;
             if (token != null)
             {
-                AppsFlyeriOS.registerUninstall(token);
-                tokenSent = true;
+                var app = AppsFlyer.instance is AppsFlyeriOS ? AppsFlyer.instance as AppsFlyeriOS : null;
+                if (app != null)
+                {
+                    app.registerUninstall(token);
+                    tokenSent = true;
+                }
             }
         }
 #endif
@@ -105,8 +109,12 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 
         var general = DataManager.Save.General;
         general.CountInterAds++;
+        if (general.CountInterAds < 9) general.Save();
+
         if (3 <= general.CountInterAds && general.CountInterAds <= 9)
         {
+
+
             var eventParams = new Dictionary<string, string>();
             eventParams.Add("af_count", general.CountInterAds.ToString());
 
@@ -136,6 +144,8 @@ public class AppsFlyerManager : MonoSingleton<AppsFlyerManager>
 
         var general = DataManager.Save.General;
         general.CountRewardAds++;
+        if (general.CountRewardAds < 5) general.Save();
+
         if (1 <= general.CountRewardAds && general.CountRewardAds <= 5)
         {
             var eventParams = new Dictionary<string, string>();

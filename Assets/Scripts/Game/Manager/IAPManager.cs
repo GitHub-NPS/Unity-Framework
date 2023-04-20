@@ -21,7 +21,7 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
     private static IExtensionProvider m_StoreExtensionProvider;
     [ShowInInspector] private List<IapProduct> m_Products;
     private ConfigurationBuilder m_Builder;
-    private UnityAction<PurchaseState, IapProduct> OnPurchaseComplete;
+    public UnityAction<PurchaseState, IapProduct> OnPurchaseComplete;
 
     public void Init(Transform parent = null)
     {
@@ -205,7 +205,7 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
 
     public void OnInitializeFailed(InitializationFailureReason error)
     {
-        
+
     }
 
     public void OnPurchaseFailed(Product product, PurchaseFailureReason reason)
@@ -236,7 +236,8 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
                         m_Products[i].Active = true;
                     }
 
-#if UNITY_IOS                    
+#if !UNITY_EDITOR
+#if UNITY_IOS
                     AppManager.AppsFlyer.iOSRevenueTracking(prodId, decimal.Multiply(price, 0.63m).ToString(), currency, transactionId);
 #elif UNITY_ANDROID
                     var payloadToJson = (Dictionary<string, object>)AFMiniJSON.Json.Deserialize((string)receiptToJson["Payload"]);
@@ -259,10 +260,16 @@ public class IAPManager : MonoSingleton<IAPManager>, IStoreListener
                     }
                     AppMetrica.AndroidRevenueTracking(price, currency, yaReceipt);
 #endif
+#endif
 
                     OnPurchaseComplete?.Invoke(PurchaseState.Success, m_Products[i]);
 
-                    AppManager.Firebase.OnIAPComplete(m_Products[i].Id);
+                    GeneralSave general = DataManager.Save.General;
+                    general.SetAds(false);
+                    general.Save();
+
+                    AppManager.Cloud.PostUserData();
+                    AppManager.Firebase.OnPurchase(m_Products[i].Id);
                 }
                 else
                 {
@@ -327,6 +334,10 @@ public class IAPManager : MonoSingleton<IAPManager>
     {
         var product = products.First(cond => string.Equals(cond.Id, productId));
         onPurchaseComplete?.Invoke(PurchaseState.Success, product);
+        
+        GeneralSave general = DataManager.Save.General;
+        general.SetAds(false);
+        general.Save();
     }
 
     public decimal GetPrice(string productId)

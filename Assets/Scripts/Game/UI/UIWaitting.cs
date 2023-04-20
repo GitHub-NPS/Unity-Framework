@@ -4,17 +4,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UIWaitting : MonoBehaviour
+public class UIWaitting : UIView
 {
-    [SerializeField] private GameObject content;
     [SerializeField] private RectTransform progress;
 
     private float speed = -300f;
-    private TickData tick = new TickData();
+    private TickData tick = new TickData(TimerType.RealtimeUpdate, 0.01f);
     private CoroutineHandle handleKill;
 
-    public void Show(float exit = -1)
+    public override void Show(object obj = null)
     {
+        Initialize();
+
+        content.SetActive(true);
+
+        var exit = (float)obj;
+
         if (handleKill.IsValid) Timing.KillCoroutines(handleKill);
 
         //progress.rotation = Quaternion.Euler(Vector3.zero);        
@@ -38,10 +43,22 @@ public class UIWaitting : MonoBehaviour
         progress.Rotate(0f, 0f, speed * Timing.DeltaTime);
     }
 
-    public void Hide()
+    public override void Hide()
     {
+        content.SetActive(false);
+
         if (handleKill.IsValid) Timing.KillCoroutines(handleKill);
         content.SetActive(false);
         tick.RemoveTick();
+    }
+
+    public override void Back()
+    {
+        
+    }
+
+    private void OnDestroy()
+    {
+        if (handleKill.IsValid) Timing.KillCoroutines(handleKill);
     }
 }

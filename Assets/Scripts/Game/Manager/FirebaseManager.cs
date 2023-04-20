@@ -10,6 +10,7 @@ using NPS.Pattern.Observer;
 using Firebase;
 using Firebase.Extensions;
 using Firebase.RemoteConfig;
+using Firebase.Crashlytics;
 #endif
 
 public class FirebaseManager : MonoSingleton<FirebaseManager>
@@ -23,17 +24,21 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
 
     private void Start()
     {
-#if DEVELOPMENT
+#if DEVELOPMENT || UNITY_EDITOR
         this.PostEvent(EventID.RemoteConfigComplete);
 #endif
 
 #if UNITY_FIREBASE
-        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
+        FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
             Firebase.Analytics.FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
             var dependencyStatus = task.Result;
-            if (dependencyStatus == DependencyStatus.Available) {
+            if (dependencyStatus == DependencyStatus.Available)
+            {
                 Initialize();
-            } else {
+            }
+            else
+            {
                 Debug.Log(System.String.Format("Could not resolve all Firebase dependencies: {0}", dependencyStatus));
                 this.PostEvent(EventID.RemoteConfigComplete);
             }
@@ -59,7 +64,8 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
             }
         }
 
-        FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(defaults).ContinueWithOnMainThread(task => {
+        FirebaseRemoteConfig.DefaultInstance.SetDefaultsAsync(defaults).ContinueWithOnMainThread(task =>
+        {
             FetchDataAsync();
             IsInit = true;
         });
@@ -78,7 +84,8 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
         var info = FirebaseRemoteConfig.DefaultInstance.Info;
         if (info.LastFetchStatus == LastFetchStatus.Success)
         {
-            FirebaseRemoteConfig.DefaultInstance.ActivateAsync().ContinueWithOnMainThread(task => {
+            FirebaseRemoteConfig.DefaultInstance.ActivateAsync().ContinueWithOnMainThread(task =>
+            {
                 Dictionary<string, string> changes = new Dictionary<string, string>();
 
                 var configs = DataManager.Save.RemoteConfig.Configs;
@@ -94,34 +101,31 @@ public class FirebaseManager : MonoSingleton<FirebaseManager>
                 {
                     configs[change.Key] = change.Value;
                 }
-               
+
                 this.PostEvent(EventID.RemoteConfigComplete);
+
+                Crashlytics.SetCustomKey("uId", DataManager.Save.User.uId);
+                Crashlytics.SetUserId(DataManager.Save.User.uId);
             });
         }
     }
 #endif
 
-    public void AdImpression(string ad_platform, string ad_source, string ad_unit_name, string ad_format,
-        string ad_revenue)
+    public void AdImpression(string ad_platform, string ad_source, string ad_unit_name, string ad_format, double ad_revenue)
     {
 #if UNITY_FIREBASE
-        if (IsAnalytics) {
+        if (IsAnalytics)
+        {
             Firebase.Analytics.Parameter[] arrParams = {
                 new Firebase.Analytics.Parameter("ad_platform", ad_platform),
                 new Firebase.Analytics.Parameter("ad_source", ad_source),
+                new Firebase.Analytics.Parameter("ad_unit_name", ad_unit_name),
                 new Firebase.Analytics.Parameter("ad_format", ad_format),
                 new Firebase.Analytics.Parameter("currency", "USD"),
                 new Firebase.Analytics.Parameter("value", ad_revenue)
             };
-            
-            if (ad_unit_name.Equals("rewarded_video")) {
-                Firebase.Analytics.FirebaseAnalytics.LogEvent("ad_impression_rewarded", arrParams);
-            }
-            else if (ad_unit_name.Equals("interstitial")) {                Firebase.Analytics.FirebaseAnalytics.LogEvent("ad_impression_interstitial", arrParams);
-            }
-            else if (ad_unit_name.Equals("banner")) {
-                Firebase.Analytics.FirebaseAnalytics.LogEvent("ad_impression_banner", arrParams);
-            }
+
+            Firebase.Analytics.FirebaseAnalytics.LogEvent("ad_impression", arrParams);
         }
 #endif
     }

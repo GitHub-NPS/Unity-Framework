@@ -105,7 +105,7 @@ public class ResourceManager : MonoBehaviour
     public SkeletonDataAsset LoadSkeleton(string path, bool save = true)
     {
         return Load($"Skeletons/{path}", dicSkeleton, save);
-    }    
+    }
 
     public GameObject LoadGameObject(string path, bool save = true)
     {

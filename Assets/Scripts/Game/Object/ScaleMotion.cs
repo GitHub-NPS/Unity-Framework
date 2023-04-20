@@ -24,6 +24,11 @@ public class ScaleMotion : MonoBehaviour
         Motion();
     }
 
+    private void OnDisable()
+    {
+        if (tw != default) tw.Kill();
+    }
+
     private void Motion()
     {
         this.transform.localScale = start;

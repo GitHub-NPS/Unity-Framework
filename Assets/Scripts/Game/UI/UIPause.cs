@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using NPS;
 
-public class UIPause : UIView
+public class UIPause: UIView, IPopup
 {
     [SerializeField] private GameObject iconMusicOn;
     [SerializeField] private GameObject iconMusicOff;

@@ -3,18 +3,13 @@ using com.unimob.timer;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class UIIconEventItem : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI txtTime;
 
-    protected EventData data;
     private TickData tick = new TickData(TimerType.RealtimeUpdate, 1);
-
-    private void Awake()
-    {
-        data = DataManager.Save.RemoteConfig.Event;
-    }
 
     public virtual void Set()
     {
@@ -24,13 +19,15 @@ public abstract class UIIconEventItem : MonoBehaviour
 
     private void Tick()
     {
-        if (data.Time.TotalSeconds <= 0)
+        var time = DataManager.Save.RemoteConfig.EventTime;
+
+        if (time.TotalSeconds <= 0)
         {
             tick.RemoveTick();
             this.gameObject.SetActive(false);
         }
 
-        txtTime.text = data.Time.Show();
+        txtTime.text = time.Show();
     }
 
     public abstract void OnClick();

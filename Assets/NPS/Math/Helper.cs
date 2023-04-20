@@ -136,6 +136,9 @@ namespace NPS.Math
         private static string[] ScoreNames = new string[] { "", "k", "M", "B", "T", "aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai", "aj", "ak", "al", "am", "an", "ao", "ap", "aq", "ar", "as", "at", "au", "av", "aw", "ax", "ay", "az", "ba", "bb", "bc", "bd", "be", "bf", "bg", "bh", "bi", "bj", "bk", "bl", "bm", "bn", "bo", "bp", "bq", "br", "bs", "bt", "bu", "bv", "bw", "bx", "by", "bz", };
         public static string Show(this double value)
         {
+            if (value < 0)
+                return "0";
+
             if (value < 1000)
             {
                 return Mathf.CeilToInt((float)value) + "";

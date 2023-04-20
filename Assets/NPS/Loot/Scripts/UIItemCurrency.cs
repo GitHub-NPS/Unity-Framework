@@ -1,18 +1,16 @@
-using NPS;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using NPS.Loot;
 using NPS.Math;
+using NPS.Loot;
+using UnityEngine;
 
 public class UIItemCurrency : UIItem
 {
+    [SerializeField] private string rsIcon = "Currency";
+
     public override void Set(object data)
     {
         var item = data as CurrencyData;
 
-        imgIcon.sprite = ResourceManager.S.LoadSprite("Currency", item.Type.ToString());
-        imgFrame.sprite = ResourceManager.S.LoadSprite("FrameCurrency", item.Type.ToString());
-        txtAmount.text = item.Value.Show();
+        imgIcon.sprite = ResourceManager.S.LoadSprite(rsIcon, item.Type.ToString());
+        txtAmount.text = $"x{item.Value.Show()}";
     }
 }

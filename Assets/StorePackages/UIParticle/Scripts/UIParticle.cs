@@ -438,7 +438,7 @@ namespace Coffee.UIExtensions
 					}
 					Profiler.EndSample ();
 
-					_mesh.Clear ();
+					if(_mesh) _mesh.Clear ();
 					if (0 < m_ParticleSystem.particleCount)
 					{
 						Profiler.BeginSample ("Bake Mesh");

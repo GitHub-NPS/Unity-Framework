@@ -17,7 +17,7 @@ namespace Lean.Common
 
 		/// <summary>This is invoked every time this object is selected.
 		/// NOTE: This may occur multiple times.</summary>
-		public UnityEvent OnSelected { get { if (onSelected == null) onSelected = new UnityEvent(); return onSelected; } } [SerializeField] private UnityEvent onSelected;
+		public UnityEvent OnSelected { get { if (onSelected == null) onSelected = new UnityEvent(); return onSelected; } } [SerializeField] public UnityEvent onSelected;
 
 		/// <summary>This is invoked every time this object is deselected.
 		/// NOTE: This may occur multiple times.</summary>

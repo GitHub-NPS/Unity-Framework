@@ -39,11 +39,11 @@ public class AdsManager : MonoSingleton<AdsManager>
 #if ANDROID_FREE_PRODUCTION
         AppKey = "16b5f8965";
 #elif IOS_FREE_PRODUCTION
-        AppKey = "1600189085";
+        AppKey = "19650467d";
         
-        adUnitId = "e66f39aea83e90d8";
-        adRewardUnitId = "2718c7d70c356bba";
-        bannerAdUnitId = "5e04fd94f3a9ad7a";
+        //adUnitId = "e66f39aea83e90d8";
+        //adRewardUnitId = "2718c7d70c356bba";
+        //bannerAdUnitId = "5e04fd94f3a9ad7a";
 #else
         AppKey = "11b623b6d";
 #endif
@@ -75,6 +75,9 @@ public class AdsManager : MonoSingleton<AdsManager>
 #if UNITY_EDITOR || DEVELOPMENT
         m_IsInit = true;
 #endif
+
+        if (DataManager.Save.General.IsShowRewardAds)
+            IsRewardedAdReady();
     }
 
     private void OnEnable()
@@ -280,13 +283,13 @@ public class AdsManager : MonoSingleton<AdsManager>
 
     public void ShowInterstitialAd(System.Action<bool> onCompleteShowAd = null, string placementId = null)
     {
-        Debug.Log("Show Interstitial");
-
         m_OnCompleteShowAd = onCompleteShowAd;
         m_PlacementId = placementId;
         m_AdType = AdType.Interstitial;
 
-        if (!DataManager.Save.General.Ads) return;
+        if (!DataManager.Save.General.IsShowInterAds) return;
+
+        Debug.Log("Show Interstitial");
 
 #if UNITY_APPSFLYER
         AppManager.AppsFlyer.InterstitialAdEligibleTracking();
@@ -320,11 +323,18 @@ public class AdsManager : MonoSingleton<AdsManager>
 
     public void ShowRewardedAd(System.Action<bool> onCompleteShowAd = null, string placementId = null)
     {
-        Debug.Log("ShowRewardedAd");
+        Debug.Log("Show Rewarded");
 
         m_OnCompleteShowAd = onCompleteShowAd;
         m_PlacementId = placementId;
         m_AdType = AdType.Rewarded;
+
+        if (!DataManager.Save.General.IsShowRewardAds)
+        {
+            StartCoroutine(InvokeEventAd(true));
+
+            return;
+        }
 
 #if UNITY_APPSFLYER
         AppManager.AppsFlyer.RewardedAdEligibleTracking();
@@ -357,14 +367,14 @@ public class AdsManager : MonoSingleton<AdsManager>
             StartCoroutine(InvokeEventAd(true));
 #else
             StartCoroutine(InvokeEventAd(false));
-#endif
+#endif            
         }
     }
 
     public bool IsRewardedAdReady()
     {
 #if UNITY_IRONSOURCE
-        Debug.Log("Rewarded Ad Ready");
+        //Debug.Log("Rewarded Ad Ready");
         return IronSource.Agent.isRewardedVideoAvailable();
 #elif UNITY_APPLOVIN_SDK
         return true;
@@ -379,6 +389,11 @@ public class AdsManager : MonoSingleton<AdsManager>
 
         m_OnCompleteShowAd?.Invoke(isComplete);
         m_OnCompleteShowAd = null;
+
+        if (isComplete)
+        {
+            DataManager.Save.General.ShowRewardAds();
+        }
     }
 
     public void ShowBanner()
@@ -550,17 +565,21 @@ public class AdsManager : MonoSingleton<AdsManager>
     {
         if (impressionData != null)
         {
+            var adPlatform = "ironSource";
+            var adSource = impressionData.adNetwork;
+            var adUnitName = impressionData.adUnit;
+            var adFormat = impressionData.instanceName;
+            var adRevenue = impressionData.revenue ?? 0d;
+            var adPlacement = impressionData.placement;
+
 #if UNITY_FIREBASE
-            AppManager.Firebase.AdImpression("ironSource", impressionData.adNetwork, impressionData.adUnit, impressionData.instanceName,
-                impressionData.revenue.ToString());
+            AppManager.Firebase.AdImpression(adPlatform, adSource, adUnitName, adFormat, adRevenue);
 #endif
 #if UNITY_APPSFLYER
-            AppManager.AppsFlyer.AdImpression("ironSource", impressionData.adNetwork, impressionData.adUnit, impressionData.instanceName,
-                impressionData.revenue.ToString());
+            AppManager.AppsFlyer.AdImpression("ironSource", impressionData.adNetwork, impressionData.adUnit, impressionData.instanceName, impressionData.revenue.ToString());
 #endif
-
-#if UNITY_IRONSOURCE
-            AppManager.Adjust.AdImpression(impressionData);
+#if UNITY_ADJUST
+            AppManager.Adjust.TrackingAdImpression(adSource, adUnitName, adPlacement, adRevenue);
 #endif
         }
     }

@@ -5,19 +5,22 @@ using UnityEngine;
 
 public abstract class UIView : MonoBehaviour
 {
-    [SerializeField] protected GameObject content;
+    [Header("View")]
+    public bool IsBack = false;
+
+    [SerializeField] public GameObject content;
 
     private bool isInit = false;
 
 #if UNITY_EDITOR
-    private void OnValidate()
+    protected virtual void OnValidate()
     {
         if (content == null)
             content = this.transform.Find("Content") ? this.transform.Find("Content").gameObject : this.gameObject;
     }
 #endif
 
-    private void Initialize()
+    protected void Initialize()
     {
         if (isInit) return;
         Init();
@@ -30,13 +33,18 @@ public abstract class UIView : MonoBehaviour
 
     public virtual void Show(object obj = null)
     {
-        Initialize();
+        MainGameScene.S.Show(this);
 
-        content.SetActive(true);
+        Initialize();
     }
 
     public virtual void Hide()
     {
-        content.SetActive(false);
+        MainGameScene.S.Hide(this);
+    }
+
+    public virtual void Back()
+    {
+        Hide();
     }
 }

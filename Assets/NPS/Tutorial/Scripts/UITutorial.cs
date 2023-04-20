@@ -54,6 +54,8 @@ namespace NPS.Tutorial
         {
             lockBlack.SetActive(type == LockType.Black);
             lockTransparent.SetActive(type == LockType.Transparent);
+
+            MainGameScene.S.LockTutorial = type != LockType.None;
         }
 
         public void ShowHand(bool isUI, HandType handT, LockType lockT, bool isSkip, GameObject parent, Vector3 offset = new Vector3(), params GameObject[] objs)
@@ -174,7 +176,7 @@ namespace NPS.Tutorial
                 }
 
                 cv.overrideSorting = true;
-                cv.sortingOrder = 202;
+                cv.sortingOrder = 302;
 
                 GraphicRaycaster rc = obj.GetComponent<GraphicRaycaster>();
                 if (rc == null)
@@ -204,7 +206,7 @@ namespace NPS.Tutorial
                 lstOldSg.Add(new Tuple<SortingGroup, int>(sg, sg.sortingOrder));
             }
 
-            sg.sortingOrder = 201;
+            sg.sortingOrder = 301;
         }
 
         private void iChangeLayer(GameObject obj, int layer, bool isSave = false)

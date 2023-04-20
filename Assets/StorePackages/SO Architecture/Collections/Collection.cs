@@ -7,6 +7,8 @@ namespace ScriptableObjectArchitecture
 {
     public class Collection<T> : BaseCollection, IEnumerable<T>
     {
+        public List<T> Data => _list;
+
         public new T this[int index]
         {
             get

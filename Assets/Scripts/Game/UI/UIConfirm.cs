@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIConfirm : UIView
+public class UIConfirm: UIView, IPopup
 {
     [SerializeField] private Button buttonYes;
     [SerializeField] private Button buttonNo;
@@ -71,5 +71,10 @@ public class UIConfirm : UIView
 
             callBackNo = null;
         }
+    }
+
+    public override void Back()
+    {
+        OnClickNo();
     }
 }

@@ -10,16 +10,21 @@ public class ButtonLongPressListener : MonoBehaviour, IPointerDownHandler, IPoin
 {
     [SerializeField] private Vector2 delay = new Vector2(0.05f, 0.15f);
     [SerializeField] private float decrease = 0.005f;
-    [SerializeField] 
 
     private CoroutineHandle handle;
     private Func<bool> condition;
-    private float second = 0.1f;
+    protected float second = 0.1f;
     private Action action;
 
     private void Start()
     {
 
+    }
+
+    public void SetTime(Vector2 delay, float decrease)
+    {
+        this.delay = delay;
+        this.decrease = decrease;
     }
 
     public void Set(Action action, Func<bool> condition)
@@ -33,7 +38,7 @@ public class ButtonLongPressListener : MonoBehaviour, IPointerDownHandler, IPoin
         if (handle.IsValid) Timing.KillCoroutines(handle);
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public virtual void OnPointerDown(PointerEventData eventData)
     {
         second = delay.y;
 
@@ -58,8 +63,13 @@ public class ButtonLongPressListener : MonoBehaviour, IPointerDownHandler, IPoin
                 handle = default;
                 break;
             }
-            action?.Invoke();
+            iAction();
             yield return Timing.WaitForSeconds(second = Mathf.Max(delay.x, second - decrease));
         }
+    }
+
+    protected virtual void iAction()
+    {
+        action?.Invoke();
     }
 }

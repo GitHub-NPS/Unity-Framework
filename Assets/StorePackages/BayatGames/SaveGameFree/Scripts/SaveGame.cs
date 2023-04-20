@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+
+using BayatGames.SaveGameFree.Encoders;
+using BayatGames.SaveGameFree.Serializers;
+
 using UnityEngine;
 using UnityEngine.Networking;
-
-using BayatGames.SaveGameFree.Serializers;
-using BayatGames.SaveGameFree.Encoders;
 
 namespace BayatGames.SaveGameFree
 {
@@ -48,9 +49,19 @@ namespace BayatGames.SaveGameFree
         public delegate void LoadHandler(object loadedObj, string identifier, bool encode, string password, ISaveGameSerializer serializer, ISaveGameEncoder encoder, Encoding encoding, SaveGamePath path);
 
         /// <summary>
+        /// Occurs when started saving.
+        /// </summary>
+        public static event SaveHandler OnSaving;
+
+        /// <summary>
         /// Occurs when on saved.
         /// </summary>
         public static event SaveHandler OnSaved;
+
+        /// <summary>
+        /// Occurs when started loading.
+        /// </summary>
+        public static event LoadHandler OnLoading;
 
         /// <summary>
         /// Occurs when on loaded.
@@ -74,6 +85,16 @@ namespace BayatGames.SaveGameFree
         private static SaveGamePath m_SavePath = SaveGamePath.PersistentDataPath;
         private static string m_EncodePassword = "NPS";
         private static bool m_LogError = false;
+        private static bool usePlayerPrefs = false;
+        private static List<string> ignoredFiles = new List<string>()
+        {
+            "Player.log",
+            "output_log.txt"
+        };
+        private static List<string> ignoredDirectories = new List<string>()
+        {
+            "Analytics"
+        };
 
         /// <summary>
         /// Gets or sets the serializer.
@@ -200,6 +221,43 @@ namespace BayatGames.SaveGameFree
         }
 
         /// <summary>
+        /// Gets or sets whether to use PlayerPrefs as storage or not.
+        /// </summary>
+        public static bool UsePlayerPrefs
+        {
+            get
+            {
+                return usePlayerPrefs;
+            }
+            set
+            {
+                usePlayerPrefs = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of ignored files.
+        /// </summary>
+        public static List<string> IgnoredFiles
+        {
+            get
+            {
+                return ignoredFiles;
+            }
+        }
+
+        /// <summary>
+        /// Gets the list of ignored directories.
+        /// </summary>
+        public static List<string> IgnoredDirectories
+        {
+            get
+            {
+                return ignoredDirectories;
+            }
+        }
+
+        /// <summary>
         /// Saves data using the identifier.
         /// </summary>
         /// <param name="identifier">Identifier.</param>
@@ -300,6 +358,18 @@ namespace BayatGames.SaveGameFree
             {
                 throw new System.ArgumentNullException("identifier");
             }
+            if (OnSaving != null)
+            {
+                OnSaving(
+                    obj,
+                    identifier,
+                    encode,
+                    password,
+                    serializer,
+                    encoder,
+                    encoding,
+                    path);
+            }
             if (serializer == null)
             {
                 serializer = SaveGame.Serializer;
@@ -331,61 +401,38 @@ namespace BayatGames.SaveGameFree
                 obj = default(T);
             }
             Stream stream = null;
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-#if UNITY_WSA || UNITY_WINRT
-			UnityEngine.Windows.Directory.CreateDirectory ( filePath );
-#else
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-#endif
-#endif
             if (encode)
             {
                 stream = new MemoryStream();
             }
             else
             {
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-                if (IOSupported())
+                if (!usePlayerPrefs)
                 {
-#if UNITY_WSA || UNITY_WINRT
-					stream = new MemoryStream ();
-#else
                     stream = File.Create(filePath);
-#endif
                 }
                 else
                 {
                     stream = new MemoryStream();
                 }
-#else
-				stream = new MemoryStream ();
-#endif
             }
             serializer.Serialize(obj, stream, encoding);
             if (encode)
             {
                 string data = System.Convert.ToBase64String(((MemoryStream)stream).ToArray());
                 string encoded = encoder.Encode(data, password);
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-                if (IOSupported())
+                if (!usePlayerPrefs)
                 {
-#if UNITY_WSA || UNITY_WINRT
-					UnityEngine.Windows.File.WriteAllBytes ( filePath, encoding.GetBytes ( encoded ) );
-#else
                     File.WriteAllText(filePath, encoded, encoding);
-#endif
                 }
                 else
                 {
                     PlayerPrefs.SetString(filePath, encoded);
                     PlayerPrefs.Save();
                 }
-#else
-				PlayerPrefs.SetString ( filePath, encoded );
-				PlayerPrefs.Save ();
-#endif
             }
-            else if (!IOSupported())
+            else if (usePlayerPrefs)
             {
                 string data = encoding.GetString(((MemoryStream)stream).ToArray());
                 PlayerPrefs.SetString(filePath, data);
@@ -584,6 +631,18 @@ namespace BayatGames.SaveGameFree
             {
                 throw new System.ArgumentNullException("identifier");
             }
+            if (OnLoading != null)
+            {
+                OnLoading(
+                    null,
+                    identifier,
+                    encode,
+                    password,
+                    serializer,
+                    encoder,
+                    encoding,
+                    path);
+            }
             if (serializer == null)
             {
                 serializer = SaveGame.Serializer;
@@ -615,11 +674,7 @@ namespace BayatGames.SaveGameFree
             {
                 filePath = identifier;
             }
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
             if (!Exists(filePath, path))
-#else
-			if ( !Exists ( filePath, path ) )
-#endif
             {
                 Debug.LogWarningFormat(
                     "The specified identifier ({1}) does not exists. please use Exists () to check for existent before calling Load.\n" +
@@ -632,45 +687,28 @@ namespace BayatGames.SaveGameFree
             if (encode)
             {
                 string data = "";
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-                if (IOSupported())
+                if (!usePlayerPrefs)
                 {
-#if UNITY_WSA || UNITY_WINRT
-					data = encoding.GetString ( UnityEngine.Windows.File.ReadAllBytes ( filePath ) );
-#else
                     data = File.ReadAllText(filePath, encoding);
-#endif
                 }
                 else
                 {
                     data = PlayerPrefs.GetString(filePath);
                 }
-#else
-				data = PlayerPrefs.GetString ( filePath );
-#endif
                 string decoded = encoder.Decode(data, password);
                 stream = new MemoryStream(System.Convert.FromBase64String(decoded), true);
             }
             else
             {
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-                if (IOSupported())
+                if (!usePlayerPrefs)
                 {
-#if UNITY_WSA || UNITY_WINRT
-					stream = new MemoryStream ( UnityEngine.Windows.File.ReadAllBytes ( filePath ) );
-#else
                     stream = File.OpenRead(filePath);
-#endif
                 }
                 else
                 {
                     string data = PlayerPrefs.GetString(filePath);
                     stream = new MemoryStream(encoding.GetBytes(data));
                 }
-#else
-				string data = PlayerPrefs.GetString ( filePath );
-				stream = new MemoryStream ( encoding.GetBytes ( data ) );
-#endif
             }
             result = serializer.Deserialize<T>(stream, encoding);
             stream.Dispose();
@@ -747,22 +785,12 @@ namespace BayatGames.SaveGameFree
             {
                 filePath = identifier;
             }
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-            if (IOSupported())
+            if (!usePlayerPrefs)
             {
-                bool exists = false;
-#if UNITY_WSA || UNITY_WINRT
-				exists = UnityEngine.Windows.Directory.Exists ( filePath );
-#else
-                exists = Directory.Exists(filePath);
-#endif
+                bool exists = Directory.Exists(filePath);
                 if (!exists)
                 {
-#if UNITY_WSA || UNITY_WINRT
-					exists = UnityEngine.Windows.File.Exists ( filePath );
-#else
                     exists = File.Exists(filePath);
-#endif
                 }
                 return exists;
             }
@@ -770,9 +798,6 @@ namespace BayatGames.SaveGameFree
             {
                 return PlayerPrefs.HasKey(filePath);
             }
-#else
-			return PlayerPrefs.HasKey ( filePath );
-#endif
         }
 
         /// <summary>
@@ -817,22 +842,22 @@ namespace BayatGames.SaveGameFree
             {
                 return;
             }
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-            if (IOSupported())
+            if (!usePlayerPrefs)
             {
-#if UNITY_WSA || UNITY_WINRT
-				UnityEngine.Windows.File.Delete ( filePath );
-#else
-                File.Delete(filePath);
-#endif
+                var fileName = Path.GetFileName(filePath);
+                if (ignoredFiles.Contains(fileName) || ignoredDirectories.Contains(fileName))
+                {
+                    return;
+                }
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+                else if (Directory.Exists(filePath))
+                    Directory.Delete(filePath, true);
             }
             else
             {
                 PlayerPrefs.DeleteKey(filePath);
             }
-#else
-			PlayerPrefs.DeleteKey ( filePath );
-#endif
         }
 
         /// <summary>
@@ -872,38 +897,38 @@ namespace BayatGames.SaveGameFree
             switch (path)
             {
                 case SaveGamePath.PersistentDataPath:
-                    dirPath = Application.persistentDataPath + "/Save";
+                    dirPath = Application.persistentDataPath;
                     break;
                 case SaveGamePath.DataPath:
-                    dirPath = Application.dataPath + "/Save";
+                    dirPath = Application.dataPath;
                     break;
             }
-#if !UNITY_SAMSUNGTV && !UNITY_TVOS && !UNITY_WEBGL
-            if (IOSupported())
+            if (!usePlayerPrefs)
             {
-#if UNITY_WSA || UNITY_WINRT
-				UnityEngine.Windows.Directory.Delete ( dirPath );
-#else
                 DirectoryInfo info = new DirectoryInfo(dirPath);
                 FileInfo[] files = info.GetFiles();
                 for (int i = 0; i < files.Length; i++)
                 {
+                    if (ignoredFiles.Contains(files[i].Name))
+                    {
+                        continue;
+                    }
                     files[i].Delete();
                 }
                 DirectoryInfo[] dirs = info.GetDirectories();
                 for (int i = 0; i < dirs.Length; i++)
                 {
+                    if (ignoredDirectories.Contains(dirs[i].Name))
+                    {
+                        continue;
+                    }
                     dirs[i].Delete(true);
                 }
-#endif
             }
             else
             {
                 PlayerPrefs.DeleteAll();
             }
-#else
-			PlayerPrefs.DeleteAll ();
-#endif
         }
 
         /// <summary>
@@ -1034,13 +1059,16 @@ namespace BayatGames.SaveGameFree
         /// Checks if the IO is supported on current platform or not.
         /// </summary>
         /// <returns><c>true</c>, if supported was IOed, <c>false</c> otherwise.</returns>
+        [System.Obsolete("This method is deprecated", true)]
         public static bool IOSupported()
         {
             return Application.platform != RuntimePlatform.WebGLPlayer &&
             Application.platform != RuntimePlatform.WSAPlayerARM &&
             Application.platform != RuntimePlatform.WSAPlayerX64 &&
             Application.platform != RuntimePlatform.WSAPlayerX86 &&
+#if !UNITY_2017_3_OR_NEWER
             Application.platform != RuntimePlatform.SamsungTVPlayer &&
+#endif
             Application.platform != RuntimePlatform.tvOS &&
             Application.platform != RuntimePlatform.PS4;
         }

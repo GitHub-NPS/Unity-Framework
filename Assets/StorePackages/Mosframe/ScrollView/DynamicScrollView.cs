@@ -20,6 +20,7 @@
     [RequireComponent(typeof(ScrollRect))]
     public abstract class DynamicScrollView : UIBehaviour {
 
+        public Transform content => this.scrollRect.content;
 	    public int             totalItemCount   = 99;
 	    public RectTransform   itemPrototype    = null;
         public int             itemCount        = 0;
@@ -221,6 +222,37 @@
                 if( item != null ) item.onUpdateItem( index );
 		    }
 	    }
+
+        public void RefeshActiveItems()
+        {
+            foreach (var item in GetActiveItems())
+            {
+                var view = item.GetComponent<IDynamicScrollViewItem>();
+                if (view != null) view.onUpdateItem(view.getIndex());
+            }
+        }
+
+        public void SortActiveItems()
+        {
+            foreach (var item in GetActiveItems())
+            {
+                var view = item.GetComponent<IDynamicScrollViewItem>();
+                if (view != null) item.gameObject.transform.SetSiblingIndex(view.getIndex());
+            }
+        }
+
+        public List<RectTransform> GetActiveItems()
+        {
+            var result = new List<RectTransform>();
+            foreach (var itemObj in this.containers)
+            {
+                if (itemObj == null || itemObj.gameObject.activeSelf == false) continue;
+
+                result.Add(itemObj);
+            }
+
+            return result;
+        }
 
         public bool isInt = false;
         private Action seedDataComplete = null;

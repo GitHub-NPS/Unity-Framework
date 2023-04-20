@@ -1,48 +1,23 @@
 using System.Collections;
 using UnityEngine;
-using com.unimob.mec;
-using NPS.Pattern.Observer;
+using System;
 
 public class SplashGameManager : MonoBehaviour
 {
-    [SerializeField] UILoading Loading;
-
-    private void Awake()
-    {
-        this.RegisterListener(EventID.LoadSuccess, OnLoadSuccess);
-    }
-
-    private void OnLoadSuccess(object obj)
-    {
-        ChangeScene();
-    }
-
-    private void OnDestroy()
-    {
-        Timing.KillCoroutines();
-
-        this.RemoveListener(EventID.LoadSuccess, OnLoadSuccess);
-    }
+    [SerializeField] private UILoading Loading;
 
     private void Start()
     {
-        DataManager.S.Init();
-        AppManager.S.Init();
-
         Loading.Show();
-        Loading.Loading(3f, () =>
+        Loading.Loading(2f, () =>
         {
             Loading.Tap2Continue(() =>
             {
-                MonoScene.S.Active();
+                var userSave = DataManager.Save.User;
+                MonoScene.S.Load("Main");
             });
         }, false);
 
         AppManager.Ads?.HideBanner();
-    }
-
-    private void ChangeScene()
-    {
-        MonoScene.S.LoadAsync("Main");
     }
 }

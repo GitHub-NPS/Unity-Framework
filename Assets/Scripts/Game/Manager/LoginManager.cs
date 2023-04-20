@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using com.unimob.pattern.singleton;
+using com.unimob.mec;
 
 #if UNITY_GG_SIGNIN
 using Google;
+using Firebase.Extensions;
 #endif
 
 #if UNITY_IOS_SIGNIN
@@ -20,7 +22,7 @@ using System.Text;
 public class LoginManager : MonoSingleton<LoginManager>
 {
 #if UNITY_GG_SIGNIN
-    private string webClientId = "529076380418-2daa4tmksh5t8d4lf777ujlplerhil2l.apps.googleusercontent.com";
+    private string webClientId = "117794470811-r8dliij0nevjfqp6j23mi39j449m0npk.apps.googleusercontent.com";
 
     private GoogleSignInConfiguration configuration;
 #endif
@@ -47,13 +49,11 @@ public class LoginManager : MonoSingleton<LoginManager>
     private void InitGoogleSignIn()
     {
 #if UNITY_GG_SIGNIN
-        GoogleSignIn.Configuration = new GoogleSignInConfiguration
+        configuration = new GoogleSignInConfiguration
         {
             WebClientId = webClientId,
             RequestIdToken = true
         };
-
-        
 #endif
     }
 
@@ -79,21 +79,36 @@ public class LoginManager : MonoSingleton<LoginManager>
     {
         Debug.Log("Login");
 
+#if UNITY_EDITOR || DEVELOPMENT
+        LoginData data = null;
+        var id = GameManager.S.Link;
+
+        if (!string.IsNullOrEmpty(id))
+        {
+            data = new LoginData()
+            {
+                UserId = id,
+                DisplayName = "User " + "-" + SystemInfo.deviceUniqueIdentifier.Substring(0, 6),
+                ImageUrl = ""
+            };
+        }
+
+        Timing.RunCoroutine(OnLoginInvoke(data));
+        return;
+#endif
+
 #if UNITY_GG_SIGNIN
-        //GoogleSignIn.Configuration = configuration;
-        //GoogleSignIn.Configuration.UseGameSignIn = false;
-        //GoogleSignIn.Configuration.RequestIdToken = true;        
-
-        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(
-          OnAuthenticationFinished);
-
+        GoogleSignIn.Configuration = configuration;
+        GoogleSignIn.Configuration.UseGameSignIn = false;
+        GoogleSignIn.Configuration.RequestIdToken = true;
+        GoogleSignIn.DefaultInstance.SignIn().ContinueWithOnMainThread(OnAuthenticationFinished);
         return;
 #endif
 
 #if UNITY_IOS_SIGNIN
         if (PlayerPrefs.HasKey("Apple_IdToken"))
         {
-            StartCoroutine(LoginSuccess(new LoginData()
+            Timing.RunCoroutine(OnLoginInvoke(new LoginData()
             {
                 UserId = PlayerPrefs.GetString("Apple_UserId"),
                 IdToken = PlayerPrefs.GetString("Apple_IdToken"),
@@ -128,7 +143,7 @@ public class LoginManager : MonoSingleton<LoginManager>
                     PlayerPrefs.SetString("Apple_DisplayName", displayName);
                     PlayerPrefs.SetString("Apple_AuthCode", authorizationCode);
 
-                    StartCoroutine(LoginSuccess(new LoginData()
+                    Timing.RunCoroutine(OnLoginInvoke(new LoginData()
                     {
                         UserId = userId,
                         IdToken = identityToken,
@@ -144,17 +159,6 @@ public class LoginManager : MonoSingleton<LoginManager>
             return;
         }
 #endif
-
-#if UNITY_EDITOR || DEVELOPMENT
-        StartCoroutine(LoginSuccess(new LoginData()
-        {
-            UserId = "User " + SystemInfo.deviceUniqueIdentifier,
-            DisplayName = "User " + "-" + SystemInfo.deviceUniqueIdentifier.Substring(0, 6),
-            ImageUrl = ""
-        }));
-
-        return;
-#endif
     }
 
 #if UNITY_GG_SIGNIN
@@ -162,34 +166,18 @@ public class LoginManager : MonoSingleton<LoginManager>
     {
         if (task.IsFaulted)
         {
-            using (IEnumerator<System.Exception> enumerator =
-                    task.Exception.InnerExceptions.GetEnumerator())
-            {
-                if (enumerator.MoveNext())
-                {
-                    GoogleSignIn.SignInException error =
-                            (GoogleSignIn.SignInException)enumerator.Current;
-                    Debug.LogError("Got Error: " + error.Status + " " + error.Message);
-                    OnLogin?.Invoke(null);
-                }
-                else
-                {
-                    Debug.LogError("Got Unexpected Exception?!?" + task.Exception);
-                    OnLogin?.Invoke(null);
-                }
-            }
+            Debug.Log("Got Unexpected Exception?!? " + task.Exception);
+            Timing.RunCoroutine(OnLoginInvoke(null));
         }
         else if (task.IsCanceled)
         {
-            Debug.LogError("Canceled");
-            OnLogin?.Invoke(null);
+            Debug.Log("Canceled");
+            Timing.RunCoroutine(OnLoginInvoke(null));
         }
         else
         {
-            Debug.Log("Welcome: " + task.Result.DisplayName + "!");
-            Debug.Log("Welcome: " + task.Result.ImageUrl.ToString() + "!");
-
-            StartCoroutine(LoginSuccess(new LoginData()
+            Debug.Log($"Google Sign-In: {task.Result.IdToken}");
+            var loginData = new LoginData()
             {
                 UserId = task.Result.UserId,
                 IdToken = task.Result.IdToken,
@@ -197,19 +185,46 @@ public class LoginManager : MonoSingleton<LoginManager>
                 DisplayName = task.Result.DisplayName,
                 AuthCode = task.Result.AuthCode,
                 ImageUrl = task.Result.ImageUrl.ToString()
-            }));
+            };
+
+            Timing.RunCoroutine(OnLoginInvoke(loginData));
         }
     }
 #endif
 
-    private IEnumerator LoginSuccess(LoginData data)
+    private IEnumerator<float> OnLoginInvoke(LoginData data)
     {
-        yield return new WaitForEndOfFrame();
+        Debug.Log("============= Login Handle =============");
+        data.Dump();
+
+        yield return Timing.WaitForOneFrame;
+
+        SetDataLogin(data);
+
         OnLogin?.Invoke(data);
 
 #if UNITY_APPSFLYER
         AppManager.AppsFlyer.LoginSuccessTracking();
 #endif
+    }
+
+    public void SetDataLogin(LoginData data)
+    {
+        if (data != null)
+        {
+            var userSave = DataManager.Save.User;
+#if UNITY_GG_SIGNIN || DEVERLOPMENT || UNITY_EDITOR
+            userSave.googleId = data.UserId;
+#endif
+
+#if UNITY_IOS_SIGNIN
+            userSave.appleId = data.UserId;
+#endif
+            userSave.name = data.DisplayName;
+            userSave.avatar = data.ImageUrl;
+
+            userSave.Save();
+        }
     }
 
     public void Logout()

@@ -4,12 +4,12 @@ using UnityEngine;
 using com.unimob.pattern.singleton;
 using NPS.Pattern.Observer;
 using System.Collections.Generic;
+using System;
 
 public class DatasaveManager : MonoSingleton<DatasaveManager>
 {
-    private List<ADataSave> saves = new List<ADataSave>();
-
     #region General
+
     public GeneralSave General
     {
         get => general;
@@ -17,9 +17,11 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
     }
 
     [SerializeField] private GeneralSave general;
+
     #endregion
 
     #region User
+
     public UserSave User
     {
         get => user;
@@ -27,9 +29,11 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
     }
 
     [SerializeField] private UserSave user;
+
     #endregion
 
     #region RemoteConfig
+
     public RemoteConfigSave RemoteConfig
     {
         get => remoteConfig;
@@ -37,9 +41,11 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
     }
 
     [SerializeField] private RemoteConfigSave remoteConfig;
+
     #endregion
 
     #region Tutorial
+
     public TutorialSave Tutorial
     {
         get => tutorial;
@@ -47,16 +53,22 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
     }
 
     [SerializeField] private TutorialSave tutorial;
+
     #endregion
 
     #region Time
+
     public TimeSave Time
     {
         get => time;
-        set { time = value; }
+        set
+        {
+            time = value;
+        }
     }
 
     [SerializeField] private TimeSave time;
+
     #endregion
 
     private bool encode = true;
@@ -72,27 +84,41 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         SaveGame.Serializer = new SaveGameJsonSerializer();
         LoadData();
         FixData();
-
-        this.PostEvent(EventID.LoadSuccess);
     }
 
     public void FixData()
     {
-        foreach (var save in saves)
-            save.Fix();
+        bool isNextDay = (UnbiasedTime.UtcNow - General.CheckInTime).Days != 0;
 
-#if DEVELOPMENT
-        if ((UnbiasedTime.UtcNow - Time.LastTimeOut).TotalMinutes > 30)
-            NextDay();
-#else
-        if ((UnbiasedTime.UtcNow - Time.LastTimeOut).Days != 0)
-            NextDay();
-#endif
+        remoteConfig.Fix();
+
+        general.Fix();
+
+        time.Fix();
+
+        tutorial.Fix();
+
+        user.Fix();
+
+        if (isNextDay) NextDay();
+    }
+
+    public void SaveData()
+    {
+        remoteConfig.Save();
+
+        general.Save();
+
+        time.Save();
+
+        tutorial.Save();
+
+        user.Save();
     }
 
     private void NextDay()
     {
-        Time.SetLastTimeOut();
+        
     }
 
     private void OnApplicationPause(bool pause)
@@ -100,47 +126,109 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         if (pause)
         {
             Time.SetLastTimeOut();
-            General.Save();
+            Time.Save();
         }
-    }
-
-    private void OnApplicationQuit()
-    {
-        SaveData();
-    }
-
-    private void SaveData()
-    {
-        Time.SetLastTimeOut();
-
-        foreach (var save in saves)
-            save.Save();
     }
 
     public void LoadData()
     {
-        saves.Clear();
+        general = SaveGame.Load("General", new GeneralSave("General"));
 
-        remoteConfig = LoadData(new RemoteConfigSave("RemoteConfig"));
+        time = SaveGame.Load("Time", new TimeSave("Time"));
 
-        general = LoadData(new GeneralSave("General"));
+        tutorial = SaveGame.Load("Tutorial", new TutorialSave("Tutorial"));
 
-        time = LoadData(new TimeSave("Time"));
+        user = SaveGame.Load("User", new UserSave("User"));
 
-        tutorial = LoadData(new TutorialSave("Tutorial"));
-
-        user = LoadData(new UserSave("User"));
-    }
-
-    private T LoadData<T>(T def) where T : ADataSave
-    {
-        var rs = SaveGame.Load(def.Key, def);
-        saves.Add(rs);
-        return rs;
+        remoteConfig = SaveGame.Load("RemoteConfig", new RemoteConfigSave("RemoteConfig"));
     }
 
     public void ClearData()
     {
         SaveGame.Clear();
+    }
+
+    public UserDataCloud GetNewUserDataCloud()
+    {
+        return new UserDataCloud
+        {
+            General = GetFileRawData(general.Key),
+
+            Time = GetFileRawData(time.Key),
+
+            Tutorial = GetFileRawData(tutorial.Key),
+
+            User = GetFileRawData(user.Key),
+
+            RemoteConfig = GetFileRawData(remoteConfig.Key),
+        };
+    }
+
+    private string GetFileRawData(string fileName)
+    {
+        try
+        {
+            if (SaveGame.Exists(fileName))
+            {
+                var filePath = $"{Application.persistentDataPath}/Save/{fileName}";
+                var data = System.IO.File.ReadAllText(filePath, SaveGame.DefaultEncoding);
+                if (encode)
+                {
+                    var result = "";
+                    var decoded = SaveGame.Encoder.Decode(data, password);
+                    var stream = new System.IO.MemoryStream(Convert.FromBase64String(decoded), true);
+                    using (var reader = new System.IO.StreamReader(stream, SaveGame.DefaultEncoding))
+                    {
+                        result = reader.ReadToEnd();
+                    }
+
+                    stream.Dispose();
+                    return result;
+                }
+
+                return data;
+            }
+
+            return string.Empty;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Get file raw data Failed {e.Message} {e.StackTrace}\n{fileName}");
+            return string.Empty;
+        }
+    }
+
+    public void OverwriteCurrentUserData(UserDataCloud userData)
+    {
+        if (!string.IsNullOrEmpty(userData.General))
+            general = LoadFromRawData<GeneralSave>(userData.General);
+
+        if (!string.IsNullOrEmpty(userData.Time))
+            time = LoadFromRawData<TimeSave>(userData.Time);
+
+        if (!string.IsNullOrEmpty(userData.Tutorial))
+            tutorial = LoadFromRawData<TutorialSave>(userData.Tutorial);
+
+        if (!string.IsNullOrEmpty(userData.RemoteConfig))
+            remoteConfig = LoadFromRawData<RemoteConfigSave>(userData.RemoteConfig);
+
+        FixData();
+        SaveData();
+    }
+
+    private T LoadFromRawData<T>(string rawData)
+    {
+        try
+        {
+            var stream = new System.IO.MemoryStream(SaveGame.DefaultEncoding.GetBytes(rawData));
+            var saveObj = SaveGame.Serializer.Deserialize<T>(stream, SaveGame.DefaultEncoding);
+            stream.Dispose();
+            return saveObj;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Load raw data Failed {e.Message} {e.StackTrace}\n{rawData}");
+            return default(T);
+        }
     }
 }

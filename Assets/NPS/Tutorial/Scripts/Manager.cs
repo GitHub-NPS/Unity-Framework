@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using NPS.Pattern.Observer;
 using com.unimob.pattern.singleton;
 
 namespace NPS.Tutorial
@@ -61,6 +62,7 @@ namespace NPS.Tutorial
             bool rs = ConditionInit(tut);
             if (rs)
             {
+                Observer.S?.PostEvent(EventID.StartTutorial, tut);
                 //Debug.Log("Tutorial: Init: " + tut);
 
                 active.Add(tut);
@@ -77,7 +79,7 @@ namespace NPS.Tutorial
                     inits.Remove(tut);
                 }
 
-                save.Save();
+                save.Save();                
             }
 
             return rs;
@@ -176,6 +178,14 @@ namespace NPS.Tutorial
             {
                 //Debug.Log("Tutorial: Complete: " + tut);
 
+                save.Complete.Add(tut);
+
+                save.CurTut = 0;
+                save.CurStep = 0;
+
+                save.Save();
+                Observer.S?.PostEvent(EventID.CompleteTutorial, tut);
+
                 if (completes.ContainsKey(tut))
                 {
                     foreach (var action in completes[tut])
@@ -183,14 +193,7 @@ namespace NPS.Tutorial
                         action?.Invoke();
                     }
                     completes.Remove(tut);
-                }
-
-                save.Complete.Add(tut);
-
-                save.CurTut = 0;
-                save.CurStep = 0;
-
-                save.Save();
+                }                
             }
         }
 

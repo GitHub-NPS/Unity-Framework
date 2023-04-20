@@ -72,6 +72,7 @@ public static class Utils
 
     public static void Dump(this object data)
     {
+#if UNITY_EDITOR
         if (data == null)
         {
             Debug.Log("Null");
@@ -79,6 +80,7 @@ public static class Utils
         }
         Debug.Log(data.GetType());
         Debug.Log(Serialize(data));
+#endif
     }
 
     public static T Parse<T>(this JObject obj)
@@ -112,6 +114,19 @@ public static class Utils
         return result;
     }
 
+    public static List<LootData> Extract(this List<LootData> data)
+    {
+        List<LootData> result = new List<LootData>();
+        foreach (var item in data)
+        {
+            result.Add(item.Clone());
+        }
+
+        result = result.Merge();
+
+        return result;
+    }
+
     private static Renderer point;
 
     public static bool IsObjectVisible(this Vector3 position)
@@ -128,4 +143,34 @@ public static class Utils
         point.gameObject.transform.position = position;
         return GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(Camera.main), point.bounds);
     }
+
+    public static int FindLayer(params LayerBit[] layers)
+    {
+        int result = 0;
+        for (int i = 0; i < layers.Length; i++)
+        {
+            result += (int)layers[i];
+        }
+
+        return result;
+    }
+
+    public static string GetCurrency(CurrencyType type = CurrencyType.Coin)
+    {
+        return type.ToString();
+    }
+
+    public static void CopyToClipboard(this string str)
+    {
+        GUIUtility.systemCopyBuffer = str;
+    }
+}
+
+public enum LayerBit
+{
+    Dish = 65536,
+}
+public enum LayerInt
+{
+    Dish = 16,
 }
