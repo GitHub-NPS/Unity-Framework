@@ -73,6 +73,8 @@ def build_target_env():
     Config.write(Config.KEY.GIT_BRANCH, branch_name)
     if "production" in branch_name.lower():
         Config.write(Config.KEY.PIPELINE, "production")
+    elif "staging" in branch_name.lower():
+        Config.write(Config.KEY.PIPELINE, "staging")
     elif "develop" in branch_name.lower():
         Config.write(Config.KEY.PIPELINE, "development")
     else:

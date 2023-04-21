@@ -1,5 +1,5 @@
-git_url("your custom git URL to store secret key")
-#git_url("git@github.com:projectname/appstore_provision.git")
+git_url("git@gitlab.com:unimob/appstore-provision.git")
+git_branch("master")
 
 storage_mode("git")
 

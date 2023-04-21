@@ -22,14 +22,14 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            steps {                
+            steps {
                 //Debug: you never know what is missing on slave machine
                 sh 'printenv | sort'
                 // prevent null project init on new branch
                 sh 'git init'
                 sh 'git clean -ffd'
                 sh 'git config core.ignorecase false' // For Mac unity user or you have serialized case sensitive file
-                sh 'git config --list'                
+                sh 'git config --list'
                 // Jenkins git fetch and pull
                 checkout scm // the alternative to jenkins git plugin is sshagent[] and call checkout/clean by yourself
             }
@@ -48,21 +48,21 @@ pipeline {
                         powershell(script:"py -3 -m venv pyenv") // window not allow call python3.exe with venv. https://github.com/msys2/MINGW-packages/issues/5001
                         PYTHON_PATH =  sh(script: 'echo ${WORKSPACE}/pyenv/Scripts/', returnStdout: true).trim()
                     }
-                    
+
                     // Find unity root projects.
                     // If have multiple projects. Change */Assets to */NoSpace_Name/Assets
-                    env.UNITY_PROJECT_ROOT = sh(script: "find . -type d -path '*/Library' -prune -false -o -name 'Assets' -prune | sed -e 's/......\$//' " , returnStdout:true).trim()
+                    env.UNITY_PROJECT_ROOT = sh(script: "find . -type d -path '*/Library' -prune -false -o -path '*/build' -prune -false -o -name 'Assets' -prune | sed -e 's/......\$//' " , returnStdout:true).trim()
 
                     echo env.UNITY_PROJECT_ROOT
 
                     // Sometime agent with older pip version can cause error due to non compatible plugin.
-                    // try  {                        
+                    // try  {
                     //     Python("-m pip install --upgrade pip")
-                    // } 
+                    // }
                     // catch (ignore) { } // update pip always return false when already lastest version
 
                     Python("-m pip install -r $env.UNITY_PROJECT_ROOT/ci/requirements.txt")
-                }                
+                }
             }
         }
         stage('Setup Enviroment') {
@@ -94,7 +94,7 @@ pipeline {
                                 if (buildStatus != 0) {
                                     currentBuild.result = 'FAILED'
                                     error 'Build Failed by Unity. Check above log for more detail'
-                                }                                
+                                }
                             }
                             else {
                                 def shellCmd = GetConfig("UNITY_BUILD_COMMAND").trim()
@@ -105,14 +105,14 @@ pipeline {
                                 }
                             }
                         }
-                    }             
-                }                
+                    }
+                }
             }
             post {
                 always {
-                    archiveArtifacts artifacts: "buildlog.txt , build/Android/* ,  Library/LastBuild.buildreport " , allowEmptyArchive: true
+                    archiveArtifacts artifacts: "buildlog.txt , **/build/Android/* ,  Library/LastBuild.buildreport " , allowEmptyArchive: true
                     script {
-                        ExecuteAllPythonScriptsInDirectory("AfterBuild")                        
+                        ExecuteAllPythonScriptsInDirectory("AfterBuild")
                     }
                 }
                 failure {
@@ -133,23 +133,31 @@ pipeline {
             environment {
                 LC_ALL="en_US.UTF-8"
                 LANG="en_US.UTF-8"
-                FIREBASE_CLI_TOKEN = credentials('FIREBASE_CLI_TOKEN')
+                FIREBASE_TOKEN=GetConfig("FIREBASE_TOKEN").trim()
+                FIREBASE_ANDROID_APP_ID=GetConfig("FIREBASE_ANDROID_APP_ID").trim()
+                FIREBASE_IOS_APP_ID=GetConfig("FIREBASE_IOS_APP_ID").trim()
             }
             steps {
                 script {
-                    // android publisher jenkins plugin
-                    env.DATETIME_TAG = java.time.LocalDateTime.now()
+                    def google_credentials_id = GetConfig("GOOGLE_CREDENTIALS_ID").trim()
+                    def build_file_name = GetConfig("BUILD_FILE_NAME").trim()
+                    def build_file_shrink_symbols = GetConfig("BUILD_FILE_SHRINK_SYMBOLS").trim()
+                    def build_file_mapping = GetConfig("BUILD_FILE_MAPPING").trim()
+                    def build_date_time = GetConfig("GIT_COMMIT_DATE").trim()
+                    def build_version_code = GetConfig("BUNDLE_VERSION_CODE").trim()
+
                     if( "${BUILD_TARGET}" == "android" && env.BRANCH_NAME.toLowerCase().contains("production"))
                     {
                         try {
-                            androidApkUpload googleCredentialsId: 'Google Play Android Developer',
-                                filesPattern: '**/build/Android/*.aab',
+                            androidApkUpload googleCredentialsId: "${google_credentials_id}",
+                                filesPattern: "**/build/Android/${build_file_name}.aab",
                                 trackName: 'internal',
                                 rolloutPercentage: '100',
                                 usePreviousExpansionFilesIfMissing: true,
+                                nativeDebugSymbolFilesPattern: "**/build/Android/${build_file_shrink_symbols}.zip",
                                 recentChangeList: [
-                                    [language: 'en-US', text: "Update ${env.BUILD_NUMBER} ${env.DATETIME_TAG}"],
-                                    [language: 'vi', text: "Update ${env.BUILD_NUMBER} ${env.DATETIME_TAG}"]
+                                    [language: 'en-US', text: "Update ${build_version_code} | ${build_date_time}"],
+                                    [language: 'vi', text: "Update ${build_version_code} | ${build_date_time}"]
                                 ]
                         } catch (err) {
                             echo err.getMessage()
@@ -164,17 +172,18 @@ pipeline {
                             xcode_dir = "$env.UNITY_PROJECT_ROOT/build/iOS"
                         }
 
-                        dir(xcode_dir) 
+                        dir(xcode_dir)
                         {
                             sh "printenv | sort"
-                            sh "yes | cp -rf ../ci/FastLaneFiles/. ."
+                            sh "yes | cp -rf ../../ci/FastLaneFiles/. ."
                             withCredentials([string(credentialsId: 'KEYCHAIN_PASSWORD', variable: 'KEYCHAIN_PASSWORD'),
                                             string(credentialsId: 'FASTLANE_PASSWORD', variable: 'FASTLANE_PASSWORD'),
                                             string(credentialsId: 'FASTLANE_USER', variable: 'FASTLANE_USER'),
-                                            string(credentialsId: 'MATCH_PASSWORD', variable: 'MATCH_PASSWORD')]) 
+                                            string(credentialsId: 'MATCH_PASSWORD', variable: 'MATCH_PASSWORD'),
+                                            string(credentialsId: 'FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD', variable: 'FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD')])
                             {
-                                sshagent (credentials: ['appstore_github'])
-                                {
+//                                 sshagent (credentials: ['appstore_github'])
+//                                 {
                                     // Enable below code if fastlane still cant find ssh key. It add all ssh in ~/.ssh key if jenkins have sudo power (you shouldnt give CI sudo. fastlane cant run in sudo shell)
                                     // sh "ssh-add -A"
                                     sh "printenv | sort"
@@ -186,11 +195,14 @@ pipeline {
                                     // sh "security list-keychains"
 
                                     def lane = "beta"
-                                    if( env.BRANCH_NAME.toLowerCase().contains("production"))
+                                    if(env.BRANCH_NAME.toLowerCase().contains("production"))
                                         lane = "publish"
 
+                                    // env.FASTLANE_SESSION = sh(script:"fastlane spaceauth -u devteam.unimob@gmail.com")
+                                    // echo "FASTLANE_SESSION = ${env.FASTLANE_SESSION}"
+
                                     sh(script:"fastlane ${lane} --verbose 2>&1 | tee ${workspace}/fastlane_log.txt ; ( exit \${PIPESTATUS[0]} )", label: 'Fastlane')
-                                }
+//                                 }
                             }
                         }
                     }
@@ -227,7 +239,7 @@ def ExecuteAllPythonScriptsInDirectory(String subDirectory) {
 }
 
 // Get and Set is the same as Load .groovy into global env
-// This method is more convenient since config allow commucation between python and pipeline code. 
+// This method is more convenient since config allow commucation between python and pipeline code.
 // Make it easy to replicate in local without running pipeline
 def GetConfig(String configKey) {
     return sh(script:". $env.UNITY_PROJECT_ROOT/config.cfg && echo \$${configKey}", returnStdout:true)
@@ -235,7 +247,7 @@ def GetConfig(String configKey) {
 
 
 def SetConfig(String configKey, String configValue) {
-    sh """    
+    sh """
     sed -i "/${configKey} =/d" $env.UNITY_PROJECT_ROOT/config.cfg
     echo '${configKey}=${configValue}'  >> $env.UNITY_PROJECT_ROOT/config.cfg
     """

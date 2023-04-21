@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Position
+  - Human
+  - Recycle
+  - Area
   layers:
   - Default
   - TransparentFX
@@ -15,13 +19,13 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Object
+  - Bound
+  - Press
+  - Position
+  - Human
+  - Interact
+  - Dish
   - 
   - 
   - 

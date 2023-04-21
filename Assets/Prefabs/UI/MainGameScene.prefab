@@ -218,7 +218,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 31799
 --- !u!1 &6492367200482094774
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,6 +420,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: UIFixMain
       objectReference: {fileID: 0}
+    - target: {fileID: 1579712925521824525, guid: 2251fabf19b9cd84fa093a8f7c670998, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 1995133462906202454, guid: 2251fabf19b9cd84fa093a8f7c670998, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
@@ -439,6 +443,10 @@ PrefabInstance:
     - target: {fileID: 2367261863524929165, guid: 2251fabf19b9cd84fa093a8f7c670998, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5130332530893259336, guid: 2251fabf19b9cd84fa093a8f7c670998, type: 3}
+      propertyPath: tfEvent
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6441308630079941655, guid: 2251fabf19b9cd84fa093a8f7c670998, type: 3}
       propertyPath: m_AnchorMax.y
@@ -687,15 +695,7 @@ PrefabInstance:
     m_TransformParent: {fileID: 589446120549785485}
     m_Modifications:
     - target: {fileID: 502430979245673011, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 502430979245673011, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 502430979245673011, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
-      propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 502430979245673011, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
@@ -795,15 +795,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1390528639914677623, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1390528639914677623, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1390528639914677623, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
-      propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1390528639914677623, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
@@ -821,10 +813,6 @@ PrefabInstance:
     - target: {fileID: 2994213253533091219, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3765022771108518274, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
-      propertyPath: m_BlockingMask.m_Bits
-      value: 55
       objectReference: {fileID: 0}
     - target: {fileID: 8502311780441884151, guid: 414e9132bd577794dae242c7a2e8b84f, type: 3}
       propertyPath: m_Name

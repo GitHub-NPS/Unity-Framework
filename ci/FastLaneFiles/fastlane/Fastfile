@@ -12,55 +12,124 @@
 
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
+fastlane_require "dotenv"
 
 default_platform(:ios)
 
-platform :ios do  
-  lane :beta do
-    
-    sync_code_signing(
-      type: "development", 
-      # development key sometimes update provision profile. Like add new people or devices to test flight.
-      # do not use readonly unless you want to manually update key
-      # readonly: true 
-    )
+platform :ios do
+    desc "Build an ipa"
+    before_all do
+        Dotenv.overload ".env.secret"
+    end
+  
+    lane :publish do
+        match_type = "appstore"
+        xcodeproj = "Unity-iPhone.xcodeproj"
+        identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
 
-    # create .cer file in local
-    cert()
-	
-    Dir.chdir("..") do
-      cert_file = Dir["*.cer"].sort_by { |x| File.mtime(x) }.last
-      info = Match::Utils.get_cert_info(cert_file)
-      identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
-      # a very hacky method for generic fastlane
-      # find the Common name inside cer file.
-      # and set it to .xcworkspace so the default sign identity value not null. If null the gym/build method will fail.
-      Match::TablePrinter.print_certificate_info(cert_info: info)	
-      #unity xcode project have empty field cause build failure if not manually specify profile and key
-      puts "#{info[1][1]}"
-      update_project_provisioning(
-        profile:  ENV["sigh_" + identifier + "_development_profile-path"] ,
-        code_signing_identity: "#{info[1][1]}",
-      )
+        app_store_connect_api_key
+
+        match(
+            type: match_type,
+            generate_apple_certs: true
+        )
+   
+        sh "printenv | sort"
+        lane_context()
+
+        update_code_signing_settings(
+          use_automatic_signing: true,
+          path: xcodeproj,
+          targets: 'Unity-iPhone'
+        )
+
+        update_code_signing_settings(
+          use_automatic_signing: false,
+          team_id: ENV["sigh_#{identifier}_#{match_type}_team-id"],
+          code_sign_identity: 'iPhone Distribution',
+          targets: 'Unity-iPhone',
+          path: xcodeproj,
+          profile_name: ENV["sigh_#{identifier}_#{match_type}_profile-name"],
+          profile_uuid: ENV["sigh_#{identifier}_#{match_type}"],
+        )
+
+        build_app(
+          clean: true,
+          scheme: 'Unity-iPhone',
+          xcargs: '-allowProvisioningUpdates',
+          export_method: "app-store"
+        )
+
+        sh "printenv | sort"
+        lane_context()
+
+        upload_to_testflight(skip_waiting_for_build_processing: true)
     end
 
-    sh "printenv | sort"
-    lane_context()
+    lane :beta do
+        match_type = "adhoc"
+        xcodeproj = "Unity-iPhone.xcodeproj"
+        identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
 
-    build_app(
-      clean: true,
-      # manually set signing to manual and set provision profile due gym not use correct setting when build over non interact console.
-      export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id),      
-      export_options: {
-        method: "development",
-        signingStyle: "manual",
-        provisioningProfiles: { 
-          identifier => "match Development " + identifier
-        }
-      }
-    )
+        app_store_connect_api_key
+        
+        match(
+          type: match_type,
+          generate_apple_certs: true,
+          force_for_new_devices: true
+        )
 
-    sh "printenv | sort"
-    lane_context()    
+        sh "printenv | sort"
+        lane_context()
+
+        update_project_provisioning(
+          xcodeproj: xcodeproj,
+          profile: ENV["sigh_#{identifier}_#{match_type}_profile-path"],
+          target_filter: 'Unity-iPhone',
+          build_configuration: "Release",
+          code_signing_identity: "iPhone Distribution"
+        )
+
+        update_code_signing_settings(
+          use_automatic_signing: true,
+          path: xcodeproj,
+          targets: 'Unity-iPhone'
+        )
+
+        update_code_signing_settings(
+          use_automatic_signing: false,
+          team_id: ENV["sigh_#{identifier}_#{match_type}_team-id"],
+          code_sign_identity: 'iPhone Distribution',
+          targets: 'Unity-iPhone',
+          path: xcodeproj,
+          profile_name: ENV["sigh_#{identifier}_#{match_type}_profile-name"],
+          profile_uuid: ENV["sigh_#{identifier}_#{match_type}"],
+        )
+        
+
+        build_app(
+          clean: true,
+          scheme: 'Unity-iPhone',
+          xcargs: '-allowProvisioningUpdates',
+          export_method: "ad-hoc"
+        )
+    
+        firebase_app_distribution(
+          app: ENV['FIREBASE_IOS_APP_ID'],
+          groups: ENV['FIREBASE_GROUPS']
+        )
+    
+        sh "printenv | sort"
+        lane_context()
+    end
+end
+
+private_lane :update_gem do
+  sh(command: ['bundle', 'update'])
+end
+
+private_lane :load_env do
+  Dir.chdir('../..') do
+      Dotenv.load('.env.default')
   end
 end

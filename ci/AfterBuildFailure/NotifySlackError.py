@@ -79,10 +79,13 @@ commit_time = Config.read(Config.KEY.GIT_COMMIT_DATE)
 log_file = Config.read(Config.KEY.UNITY_BUILD_LOG)
 
 # config
-#slack_channel = SlackCommand.find_user_id(email)
+project = Config.read(Config.KEY.PROJECT_NAME)
+company = Config.read(Config.KEY.COMPANY_NAME)
 slack_channel = SlackCommand.get_channel(Config.read(Config.KEY.SLACK_DEFAULT_CHANNEL))
 build_failed = Config.read(Config.KEY.UNITY_BUILD_FAILURE)
 unity_project = Config.read(Config.KEY.UNITY_PROJECT)
+version_name = Config.read(Config.KEY.BUNDLE_VERSION)
+version_code = Config.read(Config.KEY.BUNDLE_VERSION_CODE)
 
 # jenkins
 pipeline_url = os.environ.get("RUN_DISPLAY_URL")
@@ -97,8 +100,9 @@ mention_user = SlackCommand.get_user_mention(email)
 if Config.read("UNITY_BUILD_TIMEOUT") == "TRUE":
     print("Unity build Timeout")
     msg = f'''{mention_user}
-{commit_time}
-{build_id} - {committer} | {branch}-{git_hash}
+*{company} | {project}*
+{git_hash} | {commit_time}
+{build_id} - {committer} | {branch} | {version_name} | {version_code}
 Unity build *TIMEOUT*
 Detail: {pipeline_url}'''
     SlackCommand.send_file(slack_channel, log_file, f"{build_id} log", msg)
@@ -107,8 +111,9 @@ elif build_failed:
     print("Unity build fail. Send fail log and reaons")
     errors = find_errors_in_log(log_file)
     msg = f'''{mention_user}
-{commit_time}
-{mention_user} {build_id} - {committer} | {branch}-{git_hash}
+*{company} | {project}*
+{git_hash} | {commit_time}
+{build_id} - {committer} | {branch} | {version_name} | {version_code}
 Unity build *FAILED*
 Detail: {pipeline_url}'''
     # SlackCommand.send_message(slack_channel, msg)
@@ -117,8 +122,9 @@ else:
     # Send UNKNOWN ERROR
     print("Failed to find error")
     msg = f'''{mention_user}
-{commit_time}
-{build_id} - {committer} | {branch}-{git_hash}
+*{company} | {project}*
+{git_hash} | {commit_time}
+{build_id} - {committer} | {branch} | {version_name} | {version_code}
 Unity build *CRASH*
 Unknown Reason. See stacktrace for more information
 Detail: {pipeline_url}

@@ -62,24 +62,26 @@ SpriteAtlas:
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
+  - {fileID: 21300000, guid: d1ae0160e6a02f94bbe41229140fb513, type: 3}
   - {fileID: 21300000, guid: 716ac2715c1c77d449abcd1994abd554, type: 3}
-  - {fileID: 21300000, guid: 2f3d7be6d7162a94da21209375e49d13, type: 3}
-  - {fileID: 21300000, guid: c688e327f3be13143b37d5b977b828c9, type: 3}
-  - {fileID: 21300000, guid: 365df8d8ceddce44f954690f4180370e, type: 3}
-  - {fileID: 21300000, guid: 4aad1509132867b47ac016b470daa86b, type: 3}
-  - {fileID: 21300000, guid: ba43494af2f6d17419e9645b3668cdcc, type: 3}
-  - {fileID: 21300000, guid: 2520dacdb25cbcf4f8e6e18a3e7791b1, type: 3}
-  - {fileID: 21300000, guid: 6884314f0585b0c4facccdf5421102b3, type: 3}
+  - {fileID: 21300000, guid: 8df9a381e7b046247bc1a12915805e80, type: 3}
+  - {fileID: 21300000, guid: 3f4814e42b893b94eb09ca6ee6ca3f5c, type: 3}
+  - {fileID: 21300000, guid: d1f8a41819b1bd34084ba225cfb84914, type: 3}
+  - {fileID: 21300000, guid: cc874d78e51a42048a047e48a9a4588c, type: 3}
+  - {fileID: 21300000, guid: 26ad6cbcdf28d12408b42c8475101090, type: 3}
+  - {fileID: 21300000, guid: 8f31e0dedec4c1846a9feb1dcee321c5, type: 3}
+  - {fileID: 21300000, guid: a488ea4ff748246498eb1af7f8fea7a5, type: 3}
   - {fileID: 21300000, guid: 465ea97fff2d348468e95e96962e6493, type: 3}
   m_PackedSpriteNamesToIndex:
-  - button_vang
-  - button_xam
-  - button_green
-  - button_xanhluc
-  - button_do
-  - circle
-  - button_pause
-  - chat_box
+  - button-green
+  - button-yellow
+  - tittle
+  - button-red
+  - button-blue
+  - khung_popup
+  - button-gray
+  - button-exit
+  - popup
   - popup_chung
   m_RenderDataMap: {}
   m_Tag: UI Common

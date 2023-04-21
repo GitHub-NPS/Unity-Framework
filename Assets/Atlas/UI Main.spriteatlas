@@ -62,35 +62,31 @@ SpriteAtlas:
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 562cb7007a0c48c4bb319338f8f452ca, type: 3}
-  - {fileID: 21300000, guid: 60287b830ca4e7a4b83dc100fbc0920e, type: 3}
-  - {fileID: 21300000, guid: f17a0424774292041a1cc52c50b90091, type: 3}
-  - {fileID: 21300000, guid: 8f400ce460edd3744aebb8770b46b810, type: 3}
-  - {fileID: 21300000, guid: c233c2b684d8e2b48a26c2d16e745114, type: 3}
-  - {fileID: 21300000, guid: b23c2bf6685dbba4bb2eccdfd01900ed, type: 3}
-  - {fileID: 21300000, guid: 395130c7ae18d324e92b88ed29e9b057, type: 3}
-  - {fileID: 21300000, guid: 7ff872f723778cc4e98a40525c555900, type: 3}
-  - {fileID: 21300000, guid: bf193cf95c5ea874a85ecb405c3362bb, type: 3}
+  - {fileID: 21300000, guid: c8ab1cf0d3d3b7548893952fac2e2e96, type: 3}
+  - {fileID: 21300000, guid: 070e6ac16867d354ca07b0ff3853070f, type: 3}
+  - {fileID: 21300000, guid: 66636623d653a704cb95dd684003fb9d, type: 3}
+  - {fileID: 21300000, guid: 50198936b7977414dad0696d36518938, type: 3}
+  - {fileID: 21300000, guid: 10f9f667e9ce0ee42902a9d805fff334, type: 3}
+  - {fileID: 21300000, guid: 96cfb0c9b52650b42b7263436b9be044, type: 3}
+  - {fileID: 21300000, guid: 830e055a39bb5894691100b543b7761b, type: 3}
+  - {fileID: 21300000, guid: acb420bad84bd754f8b86bcf1b534857, type: 3}
   - {fileID: 21300000, guid: 1ee8f9cacb6fd6c41846db0db2789d7c, type: 3}
-  - {fileID: 21300000, guid: 52ce927cc89032648a4c901c9c8e4bd0, type: 3}
+  - {fileID: 21300000, guid: 624daf8c3b455b845a09e1f402a220fd, type: 3}
   - {fileID: 21300000, guid: 4f4dd45df7c08674d8b2b7e2a4ae1105, type: 3}
-  - {fileID: 21300000, guid: d0b5334e9388d2d4e8c32837ffc27441, type: 3}
-  - {fileID: 21300000, guid: 2a9eeecfc1ea25d44bb98006c18f8047, type: 3}
+  - {fileID: 21300000, guid: 9a58b65f8195eea4ebc34a5654487e87, type: 3}
   m_PackedSpriteNamesToIndex:
-  - icon_sound
-  - icon-home
-  - icon_play
-  - button_keo
-  - thanh_mau_boss
-  - thanh_nen
-  - button_keo1
-  - icon_music
-  - icon_sound1
+  - khung_on
+  - Sound
+  - khung_off
+  - icon-video
+  - icon_setting
+  - on
+  - music
+  - icon-button_block
   - joystick
-  - icon_replay
+  - off
   - joystick1
-  - thanh_ngan
-  - icon_music1
+  - icon-loading
   m_RenderDataMap: {}
   m_Tag: UI Main
   m_IsVariant: 0

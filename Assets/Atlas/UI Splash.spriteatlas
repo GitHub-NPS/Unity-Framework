@@ -62,15 +62,15 @@ SpriteAtlas:
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 04b5d3b417ab1a2468e9584bc57e78dc, type: 3}
-  - {fileID: 21300000, guid: 47d2ed55270fb6f4da7389508e689ab8, type: 3}
+  - {fileID: 21300000, guid: be1e71347ccf24c47bac83f2842933ba, type: 3}
+  - {fileID: 21300000, guid: 1463eb060f4e3fd4d88b96c3453f0cb8, type: 3}
+  - {fileID: 21300000, guid: 71552f6a31b2438428697943fbbedf8b, type: 3}
   - {fileID: 21300000, guid: 09451a4c848e92f408a747c2af6df0ac, type: 3}
-  - {fileID: 21300000, guid: 0eabdf4f4187f00488ae05b450e10da2, type: 3}
   m_PackedSpriteNamesToIndex:
-  - khung_loading
-  - khung_loading1
-  - _0001_3
-  - _0000_tengame
+  - thanh-tien-trinh1
+  - thanh-tien-trinh
+  - name_game
+  - loading
   m_RenderDataMap: {}
   m_Tag: UI Splash
   m_IsVariant: 0
