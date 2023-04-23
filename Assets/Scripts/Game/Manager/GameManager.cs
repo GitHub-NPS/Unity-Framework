@@ -51,7 +51,6 @@ public class GameManager : MonoBehaviour
             }
             else GetVersion();
         }
-        else Active();
     }
 
     private void OnLoginHandler(LoginData data)
@@ -98,8 +97,6 @@ public class GameManager : MonoBehaviour
 
     private void Active()
     {
-        var userSave = DataManager.Save.User;
-
         TimerManager.S?.Clear();
         Observer.S?.ClearAllListener();
         Timing.KillCoroutines();

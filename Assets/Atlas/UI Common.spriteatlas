@@ -68,6 +68,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: 3f4814e42b893b94eb09ca6ee6ca3f5c, type: 3}
   - {fileID: 21300000, guid: d1f8a41819b1bd34084ba225cfb84914, type: 3}
   - {fileID: 21300000, guid: cc874d78e51a42048a047e48a9a4588c, type: 3}
+  - {fileID: 21300000, guid: ba43494af2f6d17419e9645b3668cdcc, type: 3}
   - {fileID: 21300000, guid: 26ad6cbcdf28d12408b42c8475101090, type: 3}
   - {fileID: 21300000, guid: 8f31e0dedec4c1846a9feb1dcee321c5, type: 3}
   - {fileID: 21300000, guid: a488ea4ff748246498eb1af7f8fea7a5, type: 3}
@@ -79,6 +80,7 @@ SpriteAtlas:
   - button-red
   - button-blue
   - khung_popup
+  - circle
   - button-gray
   - button-exit
   - popup

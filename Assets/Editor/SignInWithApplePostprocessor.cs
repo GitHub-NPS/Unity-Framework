@@ -1,4 +1,4 @@
-#if UNITY_IOS
+#if UNITY_IOS && UNITY_IOS_SIGNIN
 using AppleAuth.Editor;
 using UnityEditor;
 using UnityEditor.Callbacks;
