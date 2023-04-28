@@ -1,6 +1,8 @@
+using com.unimob.mec;
 using com.unimob.pattern.singleton;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -77,12 +79,11 @@ public class CloudSaveManager : MonoSingleton<CloudSaveManager>
         var save = DataManager.Save.User;
         if (string.IsNullOrEmpty(save.devicedId))
         {
-            if (DeviceHelper.GetDeviceId(out var deviceId))
+            if (!string.IsNullOrEmpty(GameManager.S.DeviceId))
             {
-                save.devicedId = deviceId.ToLower();
+                save.devicedId = GameManager.S.DeviceId.ToLower();
                 save.Save();
             }
-            else Debug.Log($"ID: {deviceId.ToLower()} is not support!!!");
         }
     }
 
@@ -135,6 +136,11 @@ public class CloudSaveManager : MonoSingleton<CloudSaveManager>
     {
         var save = DataManager.Save.User;
 
+        if (save.CloudPost < -5)
+            return;
+
+        AutoPostData();
+
         var ver = PlayerPrefs.GetString("AppVersion", null);
         if (!string.IsNullOrEmpty(ver) && ver.CompareTo(Application.version) > 0) return;
 
@@ -145,7 +151,7 @@ public class CloudSaveManager : MonoSingleton<CloudSaveManager>
 
         Debug.Log("Post User Data");
 
-        var code = ++save.CloudVersion;
+        var code = save.Post();
         save.Save();
 
         var url = UserDataUrl + "/set";
@@ -179,12 +185,16 @@ public class CloudSaveManager : MonoSingleton<CloudSaveManager>
     private void PostUserDataHandle(string result)
     {
         Debug.Log("============= Post User Data Handle =============");
+
+        var save = DataManager.Save.User;
 #if UNITY_EDITOR
         Debug.Log(result);
 #endif
 
         if (string.IsNullOrEmpty(result) || result.Equals(ErrorResult))
         {
+            save.Post(false);
+
             OnPostUserDataCloud?.Invoke(null);
             return;
         }
@@ -195,15 +205,21 @@ public class CloudSaveManager : MonoSingleton<CloudSaveManager>
             if (response.status == 200)
             {
                 var userData = JsonUtility.FromJson<UserDataCloud>(response.data.data);
+
+                save.Post(userData != null);
+
                 OnPostUserDataCloud?.Invoke(userData ?? null);
             }
             else
             {
+                save.Post(false);
+
                 OnPostUserDataCloud?.Invoke(null);
             }
         }
         catch (Exception e)
         {
+            save.Post(false);
             OnPostUserDataCloud?.Invoke(null);
         }
     }
@@ -326,5 +342,36 @@ public class CloudSaveManager : MonoSingleton<CloudSaveManager>
         auth = System.Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(auth));
         auth = "Basic " + auth;
         return auth;
+    }
+
+    public void CheckPostData()
+    {
+        AutoPostData();
+
+        var userSave = DataManager.Save.User;
+
+        if (userSave.CloudPost == 0) return;
+
+        if (userSave.CloudPost < 0)
+            PostUserData();
+
+        userSave.CloudPost = 0;
+        userSave.Save();
+    }
+
+    private CoroutineHandle handle;
+
+    private void AutoPostData()
+    {
+        if (handle.IsValid) Timing.KillCoroutines(handle);
+
+        handle = Timing.RunCoroutine(_AutoPostData());
+    }
+
+    private IEnumerator<float> _AutoPostData()
+    {
+        yield return Timing.WaitForSeconds(300f);
+
+        PostUserData();
     }
 }

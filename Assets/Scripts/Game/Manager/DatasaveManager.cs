@@ -84,11 +84,13 @@ public class DatasaveManager : MonoSingleton<DatasaveManager>
         SaveGame.Serializer = new SaveGameJsonSerializer();
         LoadData();
         FixData();
+
+        general.Save();
     }
 
     public void FixData()
     {
-        bool isNextDay = (UnbiasedTime.UtcNow - General.CheckInTime).Days != 0;
+        bool isNextDay = (UnbiasedTime.UtcNow - general.CheckInTime).Days != 0;
 
         remoteConfig.Fix();
 

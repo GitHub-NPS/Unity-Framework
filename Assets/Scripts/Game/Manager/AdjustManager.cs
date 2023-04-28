@@ -10,17 +10,12 @@ using com.adjust.sdk;
 
 public class AdjustManager : MonoSingleton<AdjustManager>
 {
-    private bool inBlackList;
-
     public void Init(Transform parent = null)
     {
         AppManager.Adjust = this;
         if (parent) transform.SetParent(parent);
 
-#if !UNITY_EDITOR
-        inBlackList = DeviceHelper.GetDeviceId(out var deviceId) && deviceId.InBlacklist();
-        if (inBlackList) return;
-#endif
+        if (GameManager.S.InBlackList) return;
 
 #if UNITY_IOS
         InitAdjust("808vugvpdqm8");
@@ -39,7 +34,7 @@ public class AdjustManager : MonoSingleton<AdjustManager>
 
     public void RevenueTracking(decimal priceAmount, string isoCurrencyCode, string transactionId)
     {
-        if (inBlackList) return;
+        if (GameManager.S.InBlackList) return;
 
 #if UNITY_ADJUST
         var adjustEvent = new AdjustEvent("ij3dnp");

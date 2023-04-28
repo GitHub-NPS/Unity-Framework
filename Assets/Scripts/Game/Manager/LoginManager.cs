@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 using System;
 using com.unimob.pattern.singleton;
 using com.unimob.mec;
@@ -16,7 +17,6 @@ using AppleAuth.Native;
 using AppleAuth.Enums;
 using AppleAuth.Interfaces;
 using AppleAuth.Extensions;
-using System.Text;
 #endif
 
 public class LoginManager : MonoSingleton<LoginManager>
@@ -28,7 +28,7 @@ public class LoginManager : MonoSingleton<LoginManager>
 #endif
 
 #if UNITY_IOS_SIGNIN
-    private IAppleAuthManager _appleAuthManager;
+    private IAppleAuthManager appleAuthManager;
 #endif
 
     public Action<LoginData> OnLogin;
@@ -62,8 +62,7 @@ public class LoginManager : MonoSingleton<LoginManager>
 #if UNITY_IOS_SIGNIN
         if (AppleAuthManager.IsCurrentPlatformSupported)
         {
-            var deserializer = new PayloadDeserializer();
-            _appleAuthManager = new AppleAuthManager(deserializer);
+            appleAuthManager = new AppleAuthManager(new PayloadDeserializer());
         }
 #endif
     }
@@ -71,7 +70,7 @@ public class LoginManager : MonoSingleton<LoginManager>
     private void Update()
     {
 #if UNITY_IOS_SIGNIN
-        _appleAuthManager?.Update();
+        appleAuthManager?.Update();
 #endif
     }
 
@@ -106,58 +105,42 @@ public class LoginManager : MonoSingleton<LoginManager>
 #endif
 
 #if UNITY_IOS_SIGNIN
-        if (PlayerPrefs.HasKey("Apple_IdToken"))
+        var rawNonce = GenerateRandomString(32);
+        var nonce = GenerateSHA256NonceFromRawNonce(rawNonce);
+        var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName, nonce);
+
+        appleAuthManager.LoginWithAppleId(loginArgs, credential =>
         {
-            Timing.RunCoroutine(OnLoginInvoke(new LoginData()
+            if (credential is IAppleIDCredential appleIdCredential)
             {
-                UserId = PlayerPrefs.GetString("Apple_UserId"),
-                IdToken = PlayerPrefs.GetString("Apple_IdToken"),
-                Email = PlayerPrefs.GetString("Apple_Email"),
-                DisplayName = PlayerPrefs.GetString("Apple_DisplayName"),
-                AuthCode = PlayerPrefs.GetString("Apple_AuthCode")
-            }));
+                var userId = appleIdCredential.User;
+                var email = appleIdCredential.Email;
+                var displayName = "You";
 
-            return;
-        }
-        else
-        {
-            var loginArgs = new AppleAuthLoginArgs(LoginOptions.IncludeEmail | LoginOptions.IncludeFullName);
-            _appleAuthManager.LoginWithAppleId(loginArgs, credential => {
-                if (credential is IAppleIDCredential appleIdCredential)
+                if (appleIdCredential.FullName != null)
+                    displayName = $"{appleIdCredential.FullName.GivenName} ({appleIdCredential.FullName.Nickname})";                
+
+                var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken);
+                var authorizationCode = Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0, appleIdCredential.AuthorizationCode.Length);
+
+                Debug.Log("Welcome: " + displayName + "!");
+
+                Timing.RunCoroutine(OnLoginInvoke(new LoginData()
                 {
-                    var userId = appleIdCredential.User;
-                    var email = appleIdCredential.Email;
+                    UserId = userId,
+                    IdToken = identityToken,
+                    Email = email,
+                    DisplayName = displayName,
+                    AuthCode = authorizationCode
+                }));
+            }
+        }, error =>
+        {
+            Debug.Log("Got Unexpected Exception?!? " + error.GetAuthorizationErrorCode());
+            Timing.RunCoroutine(OnLoginInvoke(null));
+        });
 
-                    var displayName = appleIdCredential.FullName.GivenName;
-                    if (string.IsNullOrEmpty(appleIdCredential.FullName.MiddleName)) displayName += (" " + appleIdCredential.FullName.MiddleName);
-                    if (string.IsNullOrEmpty(appleIdCredential.FullName.FamilyName)) displayName += (" " + appleIdCredential.FullName.FamilyName);
-
-                    var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken);
-                    var authorizationCode = Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0, appleIdCredential.AuthorizationCode.Length);
-
-                    Debug.Log("Welcome: " + displayName + "!");
-
-                    PlayerPrefs.SetString("Apple_UserId", userId);
-                    PlayerPrefs.SetString("Apple_IdToken", identityToken);
-                    PlayerPrefs.SetString("Apple_Email", email);
-                    PlayerPrefs.SetString("Apple_DisplayName", displayName);
-                    PlayerPrefs.SetString("Apple_AuthCode", authorizationCode);
-
-                    Timing.RunCoroutine(OnLoginInvoke(new LoginData()
-                    {
-                        UserId = userId,
-                        IdToken = identityToken,
-                        Email = email,
-                        DisplayName = displayName,
-                        AuthCode = authorizationCode
-                    }));
-                }
-            }, error => {
-                var authorizationErrorCode = error.GetAuthorizationErrorCode();
-            });
-
-            return;
-        }
+        return;
 #endif
     }
 
@@ -234,5 +217,61 @@ public class LoginManager : MonoSingleton<LoginManager>
         GoogleSignIn.DefaultInstance.Disconnect();
         OnLogout?.Invoke();
 #endif
+    }
+
+    private static string GenerateRandomString(int length)
+    {
+        if (length <= 0)
+        {
+            throw new Exception("Expected nonce to have positive length");
+        }
+
+        const string charset = "0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._";
+        var cryptographicallySecureRandomNumberGenerator = new System.Security.Cryptography.RNGCryptoServiceProvider();
+        var result = string.Empty;
+        var remainingLength = length;
+
+        var randomNumberHolder = new byte[1];
+        while (remainingLength > 0)
+        {
+            var randomNumbers = new List<int>(16);
+            for (var randomNumberCount = 0; randomNumberCount < 16; randomNumberCount++)
+            {
+                cryptographicallySecureRandomNumberGenerator.GetBytes(randomNumberHolder);
+                randomNumbers.Add(randomNumberHolder[0]);
+            }
+
+            for (var randomNumberIndex = 0; randomNumberIndex < randomNumbers.Count; randomNumberIndex++)
+            {
+                if (remainingLength == 0)
+                {
+                    break;
+                }
+
+                var randomNumber = randomNumbers[randomNumberIndex];
+                if (randomNumber < charset.Length)
+                {
+                    result += charset[randomNumber];
+                    remainingLength--;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static string GenerateSHA256NonceFromRawNonce(string rawNonce)
+    {
+        var sha = new System.Security.Cryptography.SHA256Managed();
+        var utf8RawNonce = Encoding.UTF8.GetBytes(rawNonce);
+        var hash = sha.ComputeHash(utf8RawNonce);
+
+        var result = string.Empty;
+        for (var i = 0; i < hash.Length; i++)
+        {
+            result += hash[i].ToString("x2");
+        }
+
+        return result;
     }
 }
