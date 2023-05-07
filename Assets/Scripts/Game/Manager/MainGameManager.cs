@@ -24,8 +24,6 @@ public class MainGameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        Timing.KillCoroutines();
-
         this.RemoveListener(EventID.ChangeAds, OnChangeAds);
     }
 

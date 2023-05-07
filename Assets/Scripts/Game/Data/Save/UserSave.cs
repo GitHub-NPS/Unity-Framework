@@ -43,6 +43,7 @@ public class UserSave : IDataSave
     public string avatar = "";
 
     public int CloudVersion = 0;
+    public int CloudPost = 0;
 
     public int rank = -1;
     public float complete = -1f;
@@ -89,7 +90,9 @@ public class UserSave : IDataSave
 
     public void IncreaseCurrency(CurrencyType type, double value)
     {
-        Currency[type] += value;
+        var rs = Currency[type] + value;
+
+        Currency[type] = rs > Constant.Max ? Constant.Max : rs;
 
         Observer.S?.PostEvent(EventID.ChangeCurrency, type);
     }
@@ -118,12 +121,35 @@ public class UserSave : IDataSave
     {
         rank = -1;
         complete = 0;
-      Save();
+
+        Save();
     }
 
     public void SetComplete(float value)
     {
         if (value != 0) complete = value;
         Save();
+    }
+
+    public int Post()
+    {
+        return ++CloudVersion;
+    }
+
+    public void Post(bool success)
+    {
+        if (success)
+        {
+            if (CloudPost < 0)
+                CloudPost = 0;
+            else CloudPost++;
+        }
+        else
+        {
+            if (CloudPost > 0)
+                CloudPost = 0;
+
+            else CloudPost--;
+        }
     }
 }

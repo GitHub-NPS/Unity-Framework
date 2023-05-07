@@ -5,6 +5,7 @@ using com.unimob.mec;
 using com.unimob.timer;
 using DG.Tweening;
 using NPS.Pattern.Observer;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -19,11 +20,21 @@ public class GameManager : MonoBehaviour
 #endif
     public bool isCloud = true;
 
+    public bool InBlackList = false;
+    public string DeviceId = string.Empty;
+
     private LoginData login;
 
     private void Awake()
     {
         if (!S) S = this;
+
+#if !UNITY_EDITOR
+        DeviceId = DeviceHelper.GetDeviceId();
+        Debug.Log(DeviceId);
+
+        InBlackList = DeviceId.InBlacklist();
+#endif        
 
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Application.targetFrameRate = 120;
@@ -55,13 +66,15 @@ public class GameManager : MonoBehaviour
 
     private void OnLoginHandler(LoginData data)
     {
+        AppManager.Login.OnLogin -= OnLoginHandler;
+
         login = data;
         GetVersion();
     }
 
     private void GetVersion()
     {
-#if ANDROID_FREE_PRODUCTION
+#if ANDROID_FREE_PRODUCTION || IOS_FREE_PRODUCTION
         if (Waitting) Waitting.Show(-1f);
 
         AppManager.Cloud.OnGetVersionCloud += OnGetVersionHandle;
@@ -71,6 +84,8 @@ public class GameManager : MonoBehaviour
 
     private void OnGetVersionHandle(VersionCloud cloudData)
     {
+        AppManager.Cloud.OnGetVersionCloud -= OnGetVersionHandle;
+
         if (Waitting) Waitting.Hide();
         if (cloudData != null)
         {
@@ -83,6 +98,8 @@ public class GameManager : MonoBehaviour
 
     private void OnGetUserDataCloud(UserDataCloud cloudData)
     {
+        AppManager.Cloud.OnGetUserDataCloud -= OnGetUserDataCloud;
+
         if (Waitting) Waitting.Hide();
         if (cloudData != null)
         {
@@ -93,23 +110,55 @@ public class GameManager : MonoBehaviour
 
             Active();
         }
+
+        AppManager.Cloud.CheckPostData();
     }
 
     private void Active()
     {
-        TimerManager.S?.Clear();
-        Observer.S?.ClearAllListener();
-        Timing.KillCoroutines();
-        DOTween.KillAll();
-        TutorialManager.S.Clear();
+        var userSave = DataManager.Save.User;
+
+        KillAll();
 
         MonoScene.S.Load("Main");
     }
 
     private void OnDestroy()
     {
+        KillAll();
+
         AppManager.Login.OnLogin -= OnLoginHandler;
         AppManager.Cloud.OnGetVersionCloud -= OnGetVersionHandle;
         AppManager.Cloud.OnGetUserDataCloud -= OnGetUserDataCloud;
     }
+
+    public void KillAll()
+    {
+        Debug.Log("Kill All");
+
+        TimerManager.S?.Clear();
+        Observer.S?.ClearAllListener();
+        TutorialManager.S?.Clear();
+        Timing.KillCoroutines();
+        DOTween.KillAll();
+    }
+
+#if UNITY_EDITOR
+    [Button]
+    public void GetUserData(string uId)
+    {
+        var userSave = DataManager.Save.User;
+        userSave.uId = uId;
+        userSave.CloudVersion = -1;
+
+        AppManager.Cloud.OnGetUserDataCloud += OnGetUserDataCloud;
+        AppManager.Cloud.GetUserData();
+    }
+
+    [Button]
+    public void PostUserData()
+    {
+        AppManager.Cloud.PostUserData();
+    }
+#endif
 }
